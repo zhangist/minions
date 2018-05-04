@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as io from "socket.io-client";
 import appConfig from "../config/app";
+import Window, { WindowProps } from "./window";
 
 import "./style.less";
 
@@ -10,7 +11,6 @@ enum ConnectionState {
     Unconnected = "Unconnected",
     Connecting = "Connecting",
     Connected = "Connected",
-    ConnectionFailed = "ConnectionFailed",
     ConnectError = "ConnectError",
     ConnectTimeout = "ConnectTimeout",
     Disconnect = "Disconnect",
@@ -18,11 +18,12 @@ enum ConnectionState {
 
 export interface AppProps {}
 
-export interface AppState {
+interface AppState {
     connectionState: ConnectionState;
     openConnecttionBox: boolean;
     socketUrl: string;
     clients: SocketIOClient.Socket[];
+    windows: any[];
 }
 
 export default class App extends React.Component<AppProps, AppState> {
@@ -34,6 +35,33 @@ export default class App extends React.Component<AppProps, AppState> {
             openConnecttionBox: false,
             socketUrl: appConfig.serverUrl,
             clients: [],
+            windows: [{
+                unique: Symbol(),
+                id: "id",
+                className: "class-name",
+                title: "test window",
+                width: 300,
+                height: 200,
+                top: 20,
+                left: 20,
+                zIndex: 0,
+                children: (
+                    <div>123<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />23</div>
+                ),
+            }, {
+                unique: Symbol(),
+                id: "id",
+                className: "class-name",
+                title: "test window 2",
+                width: 300,
+                height: 200,
+                top: 40,
+                left: 40,
+                zIndex: 0,
+                children: (
+                    <div>123<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />23</div>
+                ),
+            }],
         }
     }
 
@@ -57,6 +85,17 @@ export default class App extends React.Component<AppProps, AppState> {
                 <div>{this.state.clients.map(client => {
                     return (<div key={client.id}>{client.id}</div>);
                 })}</div>
+                {this.state.windows.map((windowProps, index) => {
+                    return (
+                        <Window
+                            key={index}
+                            update={(diff) => this.updateWindowProps(windowProps, diff)}
+                            onClose={() => this.closeWindow(windowProps)}
+                            onMouseDown={() => this.handleWindowActive(windowProps)}
+                            {...windowProps}
+                        />
+                    );
+                })}
             </div>
         );
     }
@@ -90,5 +129,46 @@ export default class App extends React.Component<AppProps, AppState> {
         this.setState({
             socketUrl: e.target.value,
         });
+    }
+
+    private handleWindowActive(windowProps: WindowProps) {
+        const zIndex = windowProps.zIndex;
+        for (let i = 0; i < this.state.windows.length; i++) {
+            if (this.state.windows[i].unique === windowProps.unique) {
+                this.state.windows[i].zIndex = this.state.windows.length;
+            } else {
+                if (this.state.windows[i].zIndex > zIndex) {
+                    this.state.windows[i].zIndex = this.state.windows[i].zIndex - 1;
+                }
+            }
+        }
+        
+        this.setState({
+            windows: this.state.windows,
+        });
+    }
+
+    private updateWindowProps(windowProps: WindowProps, diff: any) {
+        for (let i = 0; i < this.state.windows.length; i++) {
+            if (this.state.windows[i].unique === windowProps.unique) {
+                this.state.windows[i] = Object.assign(windowProps, diff);
+                this.setState({
+                    windows: this.state.windows,
+                });
+                break;
+            }
+        }
+    }
+
+    private closeWindow(windowProps: WindowProps) {
+        for (let i = 0; i < this.state.windows.length; i++) {
+            if (this.state.windows[i].unique === windowProps.unique) {
+                this.state.windows.splice(i, 1);
+                this.setState({
+                    windows: this.state.windows,
+                });
+                break;
+            }
+        }
     }
 }

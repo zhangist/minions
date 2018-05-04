@@ -6,7 +6,6 @@ const isDev = process.env.NODE_ENV === "production" ? false : true;
 
 module.exports = {
     mode: isDev ? "development" : "production",
-    devtool: isDev ? "inline-source-map" : "source-map",
     target: "web",
     context: __dirname,
     entry: "./src/console.tsx",

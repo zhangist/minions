@@ -14,7 +14,6 @@ fs.readdirSync('node_modules')
 
 module.exports = {
     mode: isDev ? "development" : "production",
-    devtool: isDev ? "inline-source-map" : "source-map",
     target: "node",
     context: __dirname,
     entry: {
