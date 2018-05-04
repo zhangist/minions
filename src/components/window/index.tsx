@@ -9,6 +9,7 @@ export interface WindowProps {
     top: number;
     left: number;
     zIndex: number;
+    isActive: boolean;
     update: (diff: any) => void;
     onMouseDown: (e?: React.MouseEvent<HTMLDivElement>) => void;
     id?: string;
@@ -28,14 +29,15 @@ enum ResizeType {
 
 export default class Window extends React.Component<WindowProps, {}> {
     private bodyUserSelect = "";
-
-    public state = {
-        isMoving: false,
-        isResizing: false,
-        resizeType: ResizeType.Right,
-        lastX: 0,
-        lastY: 0,
-    }
+    private mouseX = 0;
+    private mouseY = 0;
+    private windowX = 0;
+    private windowY = 0;
+    private windowWidth = 0;
+    private windowHeight = 0;
+    private isMoving = false;
+    private isResizing = false;
+    private resizeType = ResizeType.Right;
 
     public componentDidMount() {
         document.addEventListener("mousemove", this.handleMouseMove);
@@ -59,6 +61,9 @@ export default class Window extends React.Component<WindowProps, {}> {
         const windowClassNameArr = ["window"];
         if (this.props.className) {
             windowClassNameArr.push(this.props.className);
+        }
+        if (this.props.isActive) {
+            windowClassNameArr.push("window-active");
         }
 
         return (
@@ -87,11 +92,11 @@ export default class Window extends React.Component<WindowProps, {}> {
                     </div>
                 </div>
                 <div className="window-body">{this.props.children}</div>
-                <div className="window-resize window-resize-right" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.Right)} />
-                <div className="window-resize window-resize-right-bottom" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.RightBottom)} />
-                <div className="window-resize window-resize-bottom" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.Bottom)} />
                 <div className="window-resize window-resize-left" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.Left)} />
+                <div className="window-resize window-resize-right" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.Right)} />
+                <div className="window-resize window-resize-bottom" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.Bottom)} />
                 <div className="window-resize window-resize-left-bottom" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.LeftBottom)} />
+                <div className="window-resize window-resize-right-bottom" onMouseDown={(e) => this.handleMouseDown(e, ResizeType.RightBottom)} />
             </div>
         );
     }
@@ -100,36 +105,35 @@ export default class Window extends React.Component<WindowProps, {}> {
         this.bodyUserSelect = document.body.style.userSelect || "";
         document.body.style.userSelect = "none";
 
+        this.mouseX = e.pageX || e.clientX;
+        this.mouseY = e.pageY || e.clientY;
+        this.windowX = this.props.left;
+        this.windowY = this.props.top;
+        this.windowWidth = this.props.width;
+        this.windowHeight = this.props.height;
+
         if (type === "move") {
-            this.setState({
-                isMoving: true,
-                lastX: e.pageX || e.clientX,
-                lastY: e.pageY || e.clientY,
-            });
+            this.isMoving = true;
         } else if ((Object as any).values(ResizeType).includes(type)) { // type in ResizeType
-            this.setState({
-                isResizing: true,
-                resizeType: type,
-                lastX: e.pageX || e.clientX,
-                lastY: e.pageY || e.clientY,
-            });
+            this.isResizing = true;
+            this.resizeType = type;
         }
     }
 
     private handleMouseMove = (e: MouseEvent) => {
-        const lastX = e.pageX || e.clientX;
-        const lastY = e.pageY || e.clientY;
-        const diffX = lastX - this.state.lastX;
-        const diffY = lastY - this.state.lastY;
+        const mouseX = e.pageX || e.clientX;
+        const mouseY = e.pageY || e.clientY;
+        const diffX = mouseX - this.mouseX;
+        const diffY = mouseY - this.mouseY;
 
-        if (this.state.isMoving) {
-            let top = this.props.top + diffY;
-            let left = this.props.left + diffX;
+        if (this.isMoving) {
+            let top = diffY + this.windowY;
+            let left = diffX + this.windowX;
 
             if (top < 0) {
                 top = 0;
-            } else if (top > document.body.clientHeight - 10) {
-                top = document.body.clientHeight - 10;
+            } else if (top > document.body.clientHeight - 20) {
+                top = document.body.clientHeight - 20;
             }
 
             if (left < -this.props.width/2) {
@@ -138,31 +142,28 @@ export default class Window extends React.Component<WindowProps, {}> {
                 left = document.body.clientWidth - this.props.width/2;
             }
 
-            this.setState({
-                lastX: e.pageX || e.clientX,
-                lastY: e.pageY || e.clientY,
-            }, () => {
-                this.props.update({
-                    top,
-                    left,
-                });
+            this.props.update({
+                top,
+                left,
             });
-        } else if (this.state.isResizing) {
-            let width = this.props.width;
-            let height = this.props.height;
-            let left = this.props.left;
+        } else if (this.isResizing) {
+            // let width = mouseX - this.windowX;
+            // let height = mouseY - this.windowY;
+            let width = this.windowWidth;
+            let height = this.windowHeight;
+            let left = this.windowX;
 
-            if (this.state.resizeType === ResizeType.Right) {
+            if (this.resizeType === ResizeType.Right) {
                 width = width + diffX;
-            } else if (this.state.resizeType === ResizeType.Bottom) {
+            } else if (this.resizeType === ResizeType.Bottom) {
                 height = height + diffY;
-            } else if (this.state.resizeType === ResizeType.Left) {
+            } else if (this.resizeType === ResizeType.Left) {
                 width = width - diffX;
                 left = left + diffX;
-            } else if (this.state.resizeType === ResizeType.RightBottom) {
+            } else if (this.resizeType === ResizeType.RightBottom) {
                 width = width + diffX;
                 height = height + diffY;
-            } else if (this.state.resizeType === ResizeType.LeftBottom) {
+            } else if (this.resizeType === ResizeType.LeftBottom) {
                 width = width - diffX;
                 height = height + diffY;
                 left = left + diffX;
@@ -177,26 +178,19 @@ export default class Window extends React.Component<WindowProps, {}> {
                 height = this.props.height;
             }
 
-            this.setState({
-                lastX: e.pageX || e.clientX,
-                lastY: e.pageY || e.clientY,
-            }, () => {
-                this.props.update({
-                    width,
-                    height,
-                    left,
-                });
+            this.props.update({
+                width,
+                height,
+                left,
             });
         }
     }
 
     private handleMouseUp = (e: MouseEvent) => {
-        if (this.state.isMoving || this.state.isResizing) {
+        if (this.isMoving || this.isResizing) {
             document.body.style.userSelect = this.bodyUserSelect;
-            this.setState({
-                isMoving: false,
-                isResizing: false,
-            });
+            this.isMoving = false;
+            this.isResizing = false;
         }
     }
 }

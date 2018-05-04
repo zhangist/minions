@@ -2,6 +2,7 @@ import * as React from "react";
 import * as io from "socket.io-client";
 import appConfig from "../config/app";
 import Window, { WindowProps } from "./window";
+import Clock from "./clock";
 
 import "./style.less";
 
@@ -73,10 +74,12 @@ export default class App extends React.Component<AppProps, AppState> {
 
     public render() {
         return (
-            <div>
-                <div>
+            <div className="app">
+                <div className="header">
                     <button onClick={() => this.setState({ openConnecttionBox: !this.state.openConnecttionBox })}>Connection</button>
                     <span>{this.state.connectionState}</span>
+                    <div style={{flex: "auto"}} />
+                    <div style={{paddingRight: "0.5em"}}><Clock /></div>
                 </div>
                 {this.state.openConnecttionBox ? <div>
                     <input type="text" value={this.state.socketUrl} onChange={(e) => this.handleSocketUrlChange(e)} />
@@ -85,6 +88,7 @@ export default class App extends React.Component<AppProps, AppState> {
                 <div>{this.state.clients.map(client => {
                     return (<div key={client.id}>{client.id}</div>);
                 })}</div>
+                <div className="content">
                 {this.state.windows.map((windowProps, index) => {
                     return (
                         <Window
@@ -96,6 +100,7 @@ export default class App extends React.Component<AppProps, AppState> {
                         />
                     );
                 })}
+                </div>
             </div>
         );
     }
@@ -136,9 +141,11 @@ export default class App extends React.Component<AppProps, AppState> {
         for (let i = 0; i < this.state.windows.length; i++) {
             if (this.state.windows[i].unique === windowProps.unique) {
                 this.state.windows[i].zIndex = this.state.windows.length;
+                this.state.windows[i].isActive = true;
             } else {
                 if (this.state.windows[i].zIndex > zIndex) {
                     this.state.windows[i].zIndex = this.state.windows[i].zIndex - 1;
+                    this.state.windows[i].isActive = false;
                 }
             }
         }

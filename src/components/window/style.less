@@ -2,19 +2,26 @@
     display: flex;
     flex-direction: column;
     position: absolute;
-    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
     background: #fff;
+
+    &.window-active {
+        box-shadow: 0 0 16px rgba(0,0,0,0.4);
+    }
 
     .window-head {
         flex: none;
         display: flex;
         user-select: none;
+        word-break: keep-all;
         background: #f0f0f0;
     }
 
     .window-head-title {
         flex: auto;
         text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .window-body {
@@ -28,34 +35,34 @@
 
     .window-resize-left,
     .window-resize-right {
-        width: 4px;
+        width: 6px;
         height: 100%;
-        right: -4px;
+        right: -6px;
         cursor: e-resize;
     }
 
     .window-resize-left {
-        left: -4px;
+        left: -6px;
     }
 
     .window-resize-bottom {
         width: 100%;
-        height: 4px;
-        bottom: -4px;
+        height: 6px;
+        bottom: -6px;
         cursor: s-resize;
     }
 
     .window-resize-left-bottom,
     .window-resize-right-bottom {
-        width: 4px;
-        height: 4px;
-        right: -4px;
-        bottom: -4px;
+        width: 12px;
+        height: 6px;
+        right: -6px;
+        bottom: -6px;
         cursor: se-resize;
     }
 
     .window-resize-left-bottom {
-        left: -4px;
+        left: -6px;
         cursor: sw-resize;
     }
 }
