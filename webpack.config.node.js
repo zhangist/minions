@@ -15,6 +15,10 @@ fs.readdirSync('node_modules')
 module.exports = {
     mode: isDev ? "development" : "production",
     target: "node",
+    node: {
+        __dirname: false,
+        __filename: false,
+    },
     context: __dirname,
     entry: {
         server: "./src/server.ts",

@@ -53,7 +53,7 @@ export default class Window extends React.Component<WindowProps, {}> {
         const windowStyle = {
             width: this.props.width,
             height: this.props.height,
-            top: this.props.top < 30 ? 30 : this.props.top,
+            top: this.props.top + 30,
             left: this.props.left,
             zIndex: this.props.zIndex,
         };
@@ -130,10 +130,10 @@ export default class Window extends React.Component<WindowProps, {}> {
             let top = diffY + this.windowY;
             let left = diffX + this.windowX;
 
-            if (top < 30) {
-                top = 30;
-            } else if (top > document.body.clientHeight - 20) {
-                top = document.body.clientHeight - 20;
+            if (top < 0) {
+                top = 0;
+            } else if (top > document.body.clientHeight - 50) {
+                top = document.body.clientHeight - 50;
             }
 
             if (left < -this.props.width/2 + 8) {

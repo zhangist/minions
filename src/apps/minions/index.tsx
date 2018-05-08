@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as io from "socket.io-client";
 import AppWindow from "../../components/AppWindow";
-import appConfig from "../../config/app";
 
 enum ConnectionState {
     Unconnected = "Unconnected",
@@ -13,9 +12,11 @@ enum ConnectionState {
 }
 
 interface MinionsState {
-    openConnectionBox: boolean;
+    showConnectionBox: boolean;
     connectionState: ConnectionState;
     socketUrl: string;
+    showUploadBox: boolean;
+    uploadUrl: string;
     clients: {id: string}[];
     windows: any[];
 }
@@ -23,9 +24,11 @@ interface MinionsState {
 export default class Minions extends AppWindow<{}, MinionsState> {
     private socket: SocketIOClient.Socket;
     public state: MinionsState = {
-        openConnectionBox: false,
+        showConnectionBox: false,
         connectionState: ConnectionState.Unconnected,
-        socketUrl: appConfig.serverUrl,
+        socketUrl: "http://localhost:1992",
+        showUploadBox: false,
+        uploadUrl: "http://localhost:1992/upload",
         clients: [],
         windows: [],
     };
@@ -39,19 +42,31 @@ export default class Minions extends AppWindow<{}, MinionsState> {
     public render() {
         return (
             <div>
-                <div>
-                    <button onClick={() => this.setState({ openConnectionBox: !this.state.openConnectionBox })}>Connection</button>
+                <div style={{marginBottom: "16px"}}>
+                    <button onClick={() => this.setState({ showConnectionBox: !this.state.showConnectionBox })}>Open Connection Box</button>
                     <span>{this.state.connectionState}</span>
+                    {this.state.showConnectionBox ? <div>
+                        <input type="text" value={this.state.socketUrl} onChange={this.handleSocketUrlChange} />
+                        <button onClick={() => this.connect()}>Connect</button>
+                    </div> : null}
                 </div>
-                <div>{this.state.clients.map(client => {
-                    return (<div key={client.id}>{client.id}</div>);
-                })}</div>
-                {this.state.openConnectionBox ? <div>
-                    <input type="text" value={this.state.socketUrl} onChange={(e) => this.handleSocketUrlChange(e)} />
-                    <button onClick={() => this.connect()}>Connect</button>
+                {this.state.clients.length > 0 ? <div style={{marginBottom: "10px"}}>
+                    {this.state.clients.map(client => {
+                        return (<div key={client.id}>{client.id}</div>);
+                    })}
                 </div> : null}
-                <div>
-                    <button onClick={() => this.openWindows([{name: "socket window", component: <div>socket detail</div>}])}>open detail window</button>
+                <div style={{marginBottom: "16px"}}>
+                    <button onClick={() => this.setState({ showUploadBox: !this.state.showUploadBox })}>Open Upload Box</button>
+                    {this.state.showUploadBox ? <div>
+                        <input value={this.state.uploadUrl} onChange={this.handleUploadUrlChange} />
+                        <form method="post" action={this.state.uploadUrl} encType="multipart/form-data">
+                            <input name="file" type="file" />
+                            <input type="submit" value="Submit" />
+                        </form>
+                    </div> : null}
+                </div>
+                <div style={{marginBottom: "16px"}}>
+                    <button onClick={() => this.openWindows([{name: "socket window", component: <div>socket detail</div>}])}>Open Detail Window</button>
                 </div>
                 {this.renderWindows()}
             </div>
@@ -82,10 +97,15 @@ export default class Minions extends AppWindow<{}, MinionsState> {
         });
     }
 
-    private handleSocketUrlChange(e: React.ChangeEvent<HTMLInputElement>) {
+    private handleSocketUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({
             socketUrl: e.target.value,
         });
     }
 
+    private handleUploadUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({
+            uploadUrl: e.target.value,
+        });
+    }
 }
