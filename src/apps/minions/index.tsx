@@ -2,6 +2,8 @@ import * as React from "react";
 import * as io from "socket.io-client";
 import AppWindow from "../../components/AppWindow";
 
+import "./style.less";
+
 enum ConnectionState {
     Unconnected = "Unconnected",
     Connecting = "Connecting",
@@ -41,8 +43,8 @@ export default class Minions extends AppWindow<{}, MinionsState> {
 
     public render() {
         return (
-            <div>
-                <div style={{marginBottom: "16px"}}>
+            <div className="minions">
+                <div className="c-box">
                     <button onClick={() => this.setState({ showConnectionBox: !this.state.showConnectionBox })}>Open Connection Box</button>
                     <span>{this.state.connectionState}</span>
                     {this.state.showConnectionBox ? <div>
@@ -50,12 +52,12 @@ export default class Minions extends AppWindow<{}, MinionsState> {
                         <button onClick={() => this.connect()}>Connect</button>
                     </div> : null}
                 </div>
-                {this.state.clients.length > 0 ? <div style={{marginBottom: "10px"}}>
+                {this.state.clients.length > 0 ? <div className="c-box">
                     {this.state.clients.map(client => {
                         return (<div key={client.id}>{client.id}</div>);
                     })}
                 </div> : null}
-                <div style={{marginBottom: "16px"}}>
+                <div className="c-box">
                     <button onClick={() => this.setState({ showUploadBox: !this.state.showUploadBox })}>Open Upload Box</button>
                     {this.state.showUploadBox ? <div>
                         <input value={this.state.uploadUrl} onChange={this.handleUploadUrlChange} />
@@ -65,7 +67,7 @@ export default class Minions extends AppWindow<{}, MinionsState> {
                         </form>
                     </div> : null}
                 </div>
-                <div style={{marginBottom: "16px"}}>
+                <div className="c-box">
                     <button onClick={() => this.openWindows([{name: "socket window", component: <div>socket detail</div>}])}>Open Detail Window</button>
                 </div>
                 {this.renderWindows()}

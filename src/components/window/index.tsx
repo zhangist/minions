@@ -75,7 +75,7 @@ export default class Window extends React.Component<WindowProps, {}> {
             >
                 <div className="window-head">
                     <div className="window-head-action-left">
-                        <button onClick={() => this.props.update({title: "1111"})}>
+                        <button>
                             菜单
                         </button>
                     </div>
