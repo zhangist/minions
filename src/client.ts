@@ -1,12 +1,27 @@
-import * as io from "socket.io-client";
-import appConfig from "./config/app";
+import * as fse from "fs-extra";
+import * as path from "path";
+import * as sioClient from "socket.io-client";
 
-const socket = io(appConfig.serverUrl);
+// set env
+import "./config/env";
+process.env.CLIENT_FILES_DIR = process.env.CLIENT_FILES_DIR || path.resolve(__dirname, "../files/client");
+process.env.TEMP_DIR = process.env.TEMP_DIR || path.resolve(__dirname, "../temp");
+if (!fse.pathExistsSync(process.env.CLIENT_FILES_DIR)) {
+    try {
+        fse.mkdirsSync(process.env.CLIENT_FILES_DIR);
+    } catch (e) {
+        console.log(e);
+    }
+}
+if (!fse.pathExistsSync(process.env.TEMP_DIR)) {
+    try {
+        fse.mkdirsSync(process.env.TEMP_DIR);
+    } catch (e) {
+        console.log(e);
+    }
+}
 
-socket.on("connect", () => {
-    console.log("connected");
-});
+import routesSocketClient from "./routes/socketClient";
 
-socket.on("server_post_sound", (data: any) => {
-    console.log(data);
-});
+const socketClient = sioClient(process.env.SERVER_URL + ":" + process.env.SERVER_PORT);
+routesSocketClient(socketClient);

@@ -13,12 +13,20 @@ enum ConnectionState {
     Disconnect = "Disconnect",
 }
 
+enum UploadState {
+    Uploading = "Uploading",
+    UploadSuccess = "UploadSuccess",
+    UploadFailed = "UploadFailed",
+}
+
 interface MinionsState {
     showConnectionBox: boolean;
     connectionState: ConnectionState;
     socketUrl: string;
     showUploadBox: boolean;
+    uploadState?: UploadState;
     uploadUrl: string;
+    uploadFile: any;
     clients: {id: string}[];
     windows: any[];
 }
@@ -30,7 +38,9 @@ export default class Minions extends AppWindow<{}, MinionsState> {
         connectionState: ConnectionState.Unconnected,
         socketUrl: "http://localhost:1992",
         showUploadBox: false,
+        uploadState: undefined,
         uploadUrl: "http://localhost:1992/upload",
+        uploadFile: null,
         clients: [],
         windows: [],
     };
@@ -62,9 +72,10 @@ export default class Minions extends AppWindow<{}, MinionsState> {
                     {this.state.showUploadBox ? <div>
                         <input value={this.state.uploadUrl} onChange={this.handleUploadUrlChange} />
                         <form method="post" action={this.state.uploadUrl} encType="multipart/form-data">
-                            <input name="file" type="file" />
-                            <input type="submit" value="Submit" />
+                            <input name="file" type="file" onChange={this.handleUploadFileChange} />
+                            <input type="button" value="Submit" onClick={this.uploadSubmit} />
                         </form>
+                        <span>{this.state.uploadState}</span>
                     </div> : null}
                 </div>
                 <div className="c-box">
@@ -96,6 +107,40 @@ export default class Minions extends AppWindow<{}, MinionsState> {
                     });
                 });
             });
+        });
+    }
+
+    private uploadSubmit = () => {
+        if (this.state.uploadFile) {
+            this.setState({
+                uploadState: UploadState.Uploading
+            }, () => {
+                const data = new FormData();
+                data.append("file", this.state.uploadFile);
+                const options: RequestInit = {
+                    method: "post",
+                    body: data,
+                };
+                fetch(this.state.uploadUrl, options)
+                    .then((response) => {
+                        console.log(response);
+                        let uploadState: UploadState; 
+                        if (response.ok) {
+                            uploadState = UploadState.UploadSuccess;
+                        } else {
+                            uploadState = UploadState.UploadFailed;
+                        }
+                        this.setState({
+                            uploadState,
+                        });
+                    });
+            });
+        }
+    }
+
+    private handleUploadFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({
+            uploadFile: e.target.files ? e.target.files[0] : null,
         });
     }
 

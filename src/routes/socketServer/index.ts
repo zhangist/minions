@@ -1,37 +1,18 @@
 import * as sio from "socket.io";
+import { withSocketServer } from "../SocketRouter";
+
+import getClients from "./getClients";
+import postFile from "./postFile";
 
 export default (socketServer: sio.Server) => {
     socketServer.on("connection", (socket) => {
+        // log on client/console connect to server
         console.log("connection: " + socket.id);
-    
+
         socket.on("disconnect", () => {
             console.log("disconnect: " + socket.id);
         });
-    
-        /**
-         * get list of clients
-         */
-        socket.on("console_get_clients", (fn: (data: any) => any) => {
-            const clients = [];
-            for (let key in socketServer.sockets.sockets) {
-                clients.push({
-                    id: key,
-                });
-            }
-            fn(clients);
-        });
-    
-        /**
-         * post sound data to client from console(web)
-         */
-        socket.on("console_post_sound", (fn: (data: any) => any) => {
-            const clients = [];
-            for (let key in socketServer.sockets.sockets) {
-                clients.push({
-                    id: key,
-                });
-            }
-            fn(clients);
-        });
+        socket.on("get_clients", withSocketServer(socketServer, getClients));
+        socket.on("post_file", withSocketServer(socketServer, postFile));
     });
 }

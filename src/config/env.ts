@@ -1,6 +1,8 @@
 // env init
-process.env.PORT = process.env.PORT || "1992";
+process.env.SERVER_PORT = process.env.SERVER_PORT || "1992";
+process.env.SERVER_URL = process.env.SERVER_URL || "http://localhost";
 
 // abstract
-process.env.FILES_DIR = process.env.FILES_DIR || "";
+process.env.SERVER_FILES_DIR = process.env.SERVER_FILES_DIR || "";
+process.env.CLIENT_FILES_DIR = process.env.CLIENT_FILES_DIR || "";
 process.env.TEMP_DIR = process.env.TEMP_DIR || "";
