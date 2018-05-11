@@ -1,5 +1,4 @@
 import * as express from "express";
-
 import getHello from "./getHello";
 
 const router = express.Router();

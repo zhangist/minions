@@ -48,6 +48,7 @@
     "less": "^3.0.2",
     "less-loader": "^4.1.0",
     "nodemon": "~1.17.3",
+    "prettier": "1.12.1",
     "style-loader": "~0.21.0",
     "ts-loader": "~4.2.0",
     "tslint": "~5.9.1",

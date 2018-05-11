@@ -1,68 +1,58 @@
 .window {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  &.window-active {
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
+  }
+  .window-head {
+    flex: none;
     display: flex;
-    flex-direction: column;
-    position: fixed;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
-    background: #fff;
-
-    &.window-active {
-        box-shadow: 0 0 16px rgba(0,0,0,0.4);
-    }
-
-    .window-head {
-        flex: none;
-        display: flex;
-        user-select: none;
-        word-break: keep-all;
-        background: #f0f0f0;
-    }
-
-    .window-head-title {
-        flex: auto;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-
-    .window-body {
-        flex: 1 1 100%;
-        overflow: auto;
-    }
-
-    .window-resize {
-        position: absolute;
-    }
-
-    .window-resize-left,
-    .window-resize-right {
-        width: 6px;
-        height: 100%;
-        right: -6px;
-        cursor: e-resize;
-    }
-
-    .window-resize-left {
-        left: -6px;
-    }
-
-    .window-resize-bottom {
-        width: 100%;
-        height: 6px;
-        bottom: -6px;
-        cursor: s-resize;
-    }
-
-    .window-resize-left-bottom,
-    .window-resize-right-bottom {
-        width: 12px;
-        height: 6px;
-        right: -6px;
-        bottom: -6px;
-        cursor: se-resize;
-    }
-
-    .window-resize-left-bottom {
-        left: -6px;
-        cursor: sw-resize;
-    }
+    user-select: none;
+    word-break: keep-all;
+    background: #f0f0f0;
+  }
+  .window-head-title {
+    flex: auto;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .window-body {
+    flex: 1 1 100%;
+    overflow: auto;
+  }
+  .window-resize {
+    position: absolute;
+  }
+  .window-resize-left,
+  .window-resize-right {
+    width: 6px;
+    height: 100%;
+    right: -6px;
+    cursor: e-resize;
+  }
+  .window-resize-left {
+    left: -6px;
+  }
+  .window-resize-bottom {
+    width: 100%;
+    height: 6px;
+    bottom: -6px;
+    cursor: s-resize;
+  }
+  .window-resize-left-bottom,
+  .window-resize-right-bottom {
+    width: 12px;
+    height: 6px;
+    right: -6px;
+    bottom: -6px;
+    cursor: se-resize;
+  }
+  .window-resize-left-bottom {
+    left: -6px;
+    cursor: sw-resize;
+  }
 }
