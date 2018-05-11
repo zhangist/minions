@@ -54,7 +54,7 @@ app.use(upload.single("file"));
 // api
 app.use(routesApi);
 // socket server
-routesSocketServer(socketServer);
+routesSocketServer(socketServer.of("/console").server);
 
 server.listen(process.env.SERVER_PORT, () => {
   console.log("Server listening on port " + process.env.SERVER_PORT);

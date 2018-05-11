@@ -8,13 +8,22 @@ enum ConnectionState {
   Connected = "Connected",
   ConnectError = "ConnectError",
   ConnectTimeout = "ConnectTimeout",
+  Error = "Error",
   Disconnect = "Disconnect",
+  Reconnect = "Reconnect",
+  ReconnectAttempt = "ReconnectAttempt",
+  Reconnecting = "Reconnecting",
+  ReconnectError = "ReconnectError",
+  ReconnectFailed = "ReconnectFailed",
+  Ping = "Ping",
+  Pong = "Pong",
 }
 
 interface ISocketBoxState {
   showConnectionBox: boolean;
   connectionState: ConnectionState;
   socketUrl: string;
+  socketEvent: string;
   clients: { id: string }[];
   windows: any[];
 }
@@ -24,7 +33,8 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   public state: ISocketBoxState = {
     showConnectionBox: false,
     connectionState: ConnectionState.Unconnected,
-    socketUrl: "http://localhost:1992",
+    socketUrl: "http://localhost:1992/console",
+    socketEvent: "",
     clients: [],
     windows: [],
   };
@@ -45,16 +55,26 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
             <input
               type="text"
               value={this.state.socketUrl}
-              onChange={this.handleSocketUrlChange}
+              onChange={e => this.handleFieldChange(e, "socketUrl")}
             />
             <button onClick={() => this.connect()}>Connect</button>
           </div>
         ) : null}
-        {this.state.clients.length > 0 ? (
-          <div className="c-box">
+        {this.state.clients && this.state.clients.length > 0 ? (
+          <div>
             {this.state.clients.map(client => {
               return <div key={client.id}>{client.id}</div>;
             })}
+          </div>
+        ) : null}
+        {this.state.connectionState === ConnectionState.Connected ? (
+          <div>
+            <input
+              type="text"
+              value={this.state.socketEvent}
+              onChange={e => this.handleFieldChange(e, "socketEvent")}
+            />
+            <button onClick={this.emit}>Emit</button>
           </div>
         ) : null}
       </div>
@@ -72,30 +92,121 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
       },
       () => {
         this.socket = io(this.state.socketUrl);
-        this.socket.on("connect", () => {
-          this.setState(
-            {
-              connectionState: ConnectionState.Connected,
-              openConnectionBox: false,
-            },
-            () => {
-              this.socket.emit("get_clients", (res: any) => {
-                if (res.code === 0) {
-                  this.setState({
-                    clients: res.data.clients,
-                  });
-                }
-              });
-            },
-          );
-        });
+        this.onSocketEventConnect();
+        this.onSocketEventConnectError();
+        this.onSocketEventConnectTimeout();
+        this.onSocketEventDisconnect();
+        this.onSocketEventReconnect();
+        this.onSocketEventReconnectAttempt();
+        this.onSocketEventReconnecting();
+        this.onSocketEventReconnectError();
+        this.onSocketEventReconnectFailed();
       },
     );
   }
 
-  private handleSocketUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  private emit = () => {
+    if (this.state.socketEvent && this.socket) {
+      this.socket.emit(this.state.socketEvent, {}, (res: any) => {
+        console.log(res);
+      });
+    }
+  };
+
+  private handleFieldChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldName: string,
+  ) => {
     this.setState({
-      socketUrl: e.target.value,
+      [fieldName]: e.target.value,
     });
   };
+
+  private getClients = () => {
+    this.socket.emit("get_clients", {}, (res: any) => {
+      if (res.code === 0) {
+        this.setState({
+          clients: res.data,
+        });
+      }
+    });
+  };
+
+  private onSocketEventConnect = () => {
+    this.socket.on("connect", () => {
+      this.setState(
+        {
+          connectionState: ConnectionState.Connected,
+          openConnectionBox: false,
+        },
+        () => {
+          this.getClients();
+        },
+      );
+    });
+  }
+
+  private onSocketEventConnectError = () => {
+    this.socket.on("connect_error", () => {
+      this.setState({
+        connectionState: ConnectionState.ConnectError,
+      });
+    });
+  }
+
+  private onSocketEventConnectTimeout = () => {
+    this.socket.on("connect_timeout", () => {
+      this.setState({
+        connectionState: ConnectionState.ConnectTimeout,
+      });
+    });
+  }
+
+  private onSocketEventDisconnect = () => {
+    this.socket.on("disconnect", () => {
+      this.setState({
+        connectionState: ConnectionState.Disconnect,
+      });
+    });
+  }
+
+  private onSocketEventReconnect = () => {
+    this.socket.on("reconnect", () => {
+      this.setState({
+        connectionState: ConnectionState.Reconnect,
+      });
+    });
+  }
+
+  private onSocketEventReconnectAttempt = () => {
+    this.socket.on("reconnect_attempt", () => {
+      this.setState({
+        connectionState: ConnectionState.ReconnectAttempt,
+      });
+    });
+  }
+
+  private onSocketEventReconnecting = () => {
+    this.socket.on("reconnecting", () => {
+      this.setState({
+        connectionState: ConnectionState.Reconnecting,
+      });
+    });
+  }
+
+  private onSocketEventReconnectError = () => {
+    this.socket.on("reconnect_error", () => {
+      this.setState({
+        connectionState: ConnectionState.ReconnectError,
+      });
+    });
+  }
+
+  private onSocketEventReconnectFailed = () => {
+    this.socket.on("reconnect_failed", () => {
+      this.setState({
+        connectionState: ConnectionState.ReconnectFailed,
+      });
+    });
+  }
 }

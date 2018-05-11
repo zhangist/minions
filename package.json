@@ -1,7 +1,7 @@
 {
-  "name": "sound-controller",
+  "name": "minions",
   "version": "0.0.1",
-  "description": "Sound controller.",
+  "description": "The minions connecting system.",
   "main": "index.js",
   "scripts": {
     "watch": "cross-env NODE_ENV=development webpack --config webpack.config.node.js --watch",
