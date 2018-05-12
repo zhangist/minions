@@ -1,6 +1,6 @@
-import { SocketClientHandler } from "../SocketRouter";
+import { SocketHandler } from "../SocketRouter";
 
-const handler: SocketClientHandler = (socket, data, fn) => {
+const handler: SocketHandler = (data, fn, socket) => {
   fn({
     code: 0,
     data: {},

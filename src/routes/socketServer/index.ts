@@ -1,24 +1,56 @@
 import * as sio from "socket.io";
-import { withSocketServer } from "../SocketRouter";
-
+import * as url from "url";
+import { withServerSocket, Rooms } from "../SocketRouter";
 import getClients from "./getClients";
 import postFile from "./postFile";
 
-export default (socketServer: sio.Server) => {
-  socketServer.on("connection", socket => {
+export default (server: sio.Server) => {
+  server.on("connection", socket => {
     // log on client/console connect to server
     console.log("connection: " + socket.id);
-    console.log("request:");
-    console.log(socket.request);
+
+    // join room
+    const urlObj = url.parse(socket.handshake.url, true);
+    let room = Rooms.Client;
+    if (urlObj.query.room && urlObj.query.room === Rooms.Console) {
+      room = Rooms.Console;
+    }
+    socket.join(room, () => {
+      const socketObj = {
+        id: socket.id,
+      };
+      let socketEvent = "post_client";
+      if (room === Rooms.Console) {
+        socketEvent = "post_console";
+      }
+      // broadcast
+      server.to(Rooms.Console).emit(socketEvent, { socket: socketObj });
+    });
 
     socket.on("disconnect", () => {
       console.log("disconnect: " + socket.id);
-    });
-    socket.on("get_clients", withSocketServer(socketServer, getClients));
-    socket.on("post_file", withSocketServer(socketServer, postFile));
-    socket.on("get_rooms", withSocketServer(socketServer, (socket, data, fn) => {
-      console.log(socket.sockets);
 
-    }));
+      const socketObj = {
+        id: socket.id,
+      };
+      // broadcast
+      server.to(Rooms.Console).emit("delete_socket", { socket: socketObj });
+    });
+
+    socket.on("get_clients", withServerSocket(server, socket, getClients));
+    socket.on("post_file", withServerSocket(server, socket, postFile));
+    socket.on(
+      "put_client",
+      withServerSocket(server, socket, (data, fn, server, socket) => {
+        // broadcast
+        server.to(Rooms.Console).emit("put_client", { socket: data.socket });
+      }),
+    );
+    socket.on(
+      "get_rooms",
+      withServerSocket(server, socket, (data, fn, server, socket) => {
+        console.log(socket.rooms);
+      }),
+    );
   });
 };

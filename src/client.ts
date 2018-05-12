@@ -8,7 +8,7 @@ process.env.TEMP_DIR =
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as sioClient from "socket.io-client";
-import routesSocketClient from "./routes/socketClient";
+import socketClientRoutes from "./routes/socketClient";
 
 // init dir
 if (!fse.pathExistsSync(process.env.CLIENT_FILES_DIR)) {
@@ -27,6 +27,6 @@ if (!fse.pathExistsSync(process.env.TEMP_DIR)) {
 }
 
 const socketClient = sioClient(
-  process.env.SERVER_URL + ":" + process.env.SERVER_PORT,
+  process.env.SERVER_URL + ":" + process.env.SERVER_PORT + "?room=client",
 );
-routesSocketClient(socketClient);
+socketClientRoutes(socketClient);

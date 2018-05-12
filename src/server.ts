@@ -11,8 +11,8 @@ import * as http from "http";
 import * as express from "express";
 import * as sio from "socket.io";
 import * as multer from "multer";
-import routesApi from "./routes/api";
-import routesSocketServer from "./routes/socketServer";
+import apiRoutes from "./routes/api";
+import socketServerRoutes from "./routes/socketServer";
 
 // init dir
 if (!fse.pathExistsSync(process.env.SERVER_FILES_DIR)) {
@@ -52,9 +52,9 @@ app.use(function(req, res, next) {
 // upload file
 app.use(upload.single("file"));
 // api
-app.use(routesApi);
+app.use(apiRoutes);
 // socket server
-routesSocketServer(socketServer.of("/console").server);
+socketServerRoutes(socketServer.of("/console").server);
 
 server.listen(process.env.SERVER_PORT, () => {
   console.log("Server listening on port " + process.env.SERVER_PORT);

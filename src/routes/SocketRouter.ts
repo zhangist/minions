@@ -1,41 +1,59 @@
 import * as sio from "socket.io";
 
-export type SocketResponseFunctionParams = {
+export enum Rooms {
+  Console = "console",
+  Client = "client",
+}
+
+export interface FileProps {
+  filename: string;
+  url?: string;
+}
+
+export interface ClientProps {
+  id: string;
+  name?: string;
+  files?: FileProps[];
+}
+
+export interface SocketResponseParams {
   code: number;
   data?: any;
   message?: string;
-};
+}
 
-export type SocketResponseFunction = (
-  params: SocketResponseFunctionParams,
+export type SocketResponse = (
+  params: SocketResponseParams,
 ) => void;
 
-export type SocketClientHandler = (
-  socket: SocketIOClient.Socket,
+export type SocketHandler = (
   data: any,
-  fn: SocketResponseFunction,
-) => void;
-
-export type SocketServerHandler = (
-  socket: sio.Server,
-  data: any,
-  fn: SocketResponseFunction,
-) => void;
-
-export const withSocketClient = (
+  fn: SocketResponse,
   socket: SocketIOClient.Socket,
-  route: SocketClientHandler,
+) => void;
+
+export type ServerSocketHandler = (
+  data: any,
+  fn: SocketResponse,
+  server: sio.Server,
+  socket: sio.Socket,
+) => void;
+
+export const withSocket = (
+  socket: SocketIOClient.Socket,
+  route: SocketHandler,
 ) => {
-  return (data: any, fn: SocketResponseFunction) => {
-    route(socket, data, fn);
+  return (data: any, fn: SocketResponse) => {
+    route(data, fn, socket);
   };
 };
 
-export const withSocketServer = (
-  socket: sio.Server,
-  route: SocketServerHandler,
+export const withServerSocket = (
+  server: sio.Server,
+  socket: sio.Socket,
+  route: ServerSocketHandler,
 ) => {
-  return (data: any, fn: SocketResponseFunction) => {
-    route(socket, data, fn);
+  return (data: any, fn: SocketResponse) => {
+    route(data, fn, server, socket);
   };
 };

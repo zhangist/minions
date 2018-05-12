@@ -5,7 +5,7 @@ import { RequestHandler } from "express";
 const handler: RequestHandler = (req, res) => {
   if (!process.env.SERVER_FILES_DIR) {
     console.log("process.env.FILES_DIR is empty.");
-    res.send({
+    res.status(500).send({
       code: 500,
       message: "Save file failed.",
     });
@@ -24,7 +24,7 @@ const handler: RequestHandler = (req, res) => {
 
   if (saveFileError) {
     console.log(saveFileError);
-    res.send({
+    res.status(500).send({
       code: 500,
       message: "Save file failed.",
     });

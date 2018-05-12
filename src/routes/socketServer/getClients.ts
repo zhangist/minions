@@ -1,8 +1,27 @@
-import { SocketServerHandler } from "../SocketRouter";
+import {
+  Rooms,
+  ServerSocketHandler,
+  SocketResponseParams,
+  ClientProps,
+} from "../SocketRouter";
 
-const handler: SocketServerHandler = (socket, data, fn) => {
-  const clients = [];
-  for (let key in socket.sockets.sockets) {
+const handler: ServerSocketHandler = (data, fn, server, socket) => {
+  const room = server.sockets.adapter.rooms[Rooms.Client];
+  if (!room) {
+    fn({
+      code: 0,
+      data: {
+        sockets: [],
+      },
+      message: "Success.",
+    });
+    return;
+  }
+
+  let clients: ClientProps[] = [];
+  const sockets = room.sockets;
+
+  for (let key in sockets) {
     clients.push({
       id: key,
     });
@@ -10,9 +29,21 @@ const handler: SocketServerHandler = (socket, data, fn) => {
 
   fn({
     code: 0,
-    data: clients,
+    data: {
+      sockets: clients,
+    },
     message: "Success.",
   });
+
+  clients = []; // clear
+  for (let key in sockets) {
+    server.sockets.sockets[key].emit("get_client", {}, (res: SocketResponseParams) => {
+      const client = res.data.socket;
+      if (client.id) {
+        server.to(Rooms.Console).emit("put_client", { socket: client });
+      }
+    });
+  }
 };
 
 export default handler;
