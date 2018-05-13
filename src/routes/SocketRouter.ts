@@ -22,29 +22,31 @@ export interface SocketResponseParams {
   message?: string;
 }
 
-export type SocketResponse = (
-  params: SocketResponseParams,
-) => void;
+export type SocketResponse = (params: SocketResponseParams) => void;
 
-export type SocketHandler = (
-  data: any,
-  fn: SocketResponse,
-  socket: SocketIOClient.Socket,
-) => void;
+export interface ContextProps {
+  socket: SocketIOClient.Socket;
+  data: any;
+  fn: SocketResponse;
+}
 
-export type ServerSocketHandler = (
-  data: any,
-  fn: SocketResponse,
-  server: sio.Server,
-  socket: sio.Socket,
-) => void;
+export interface ContextServerProps {
+  server: sio.Server;
+  socket: sio.Socket;
+  data: any;
+  fn: SocketResponse;
+}
+
+export type SocketHandler = (ctx: ContextProps) => void;
+
+export type ServerSocketHandler = (ctx: ContextServerProps) => void;
 
 export const withSocket = (
   socket: SocketIOClient.Socket,
   route: SocketHandler,
 ) => {
   return (data: any, fn: SocketResponse) => {
-    route(data, fn, socket);
+    route({ data, fn, socket });
   };
 };
 
@@ -54,6 +56,6 @@ export const withServerSocket = (
   route: ServerSocketHandler,
 ) => {
   return (data: any, fn: SocketResponse) => {
-    route(data, fn, server, socket);
+    route({ data, fn, server, socket });
   };
 };

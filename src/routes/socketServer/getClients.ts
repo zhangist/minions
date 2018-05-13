@@ -5,7 +5,7 @@ import {
   ClientProps,
 } from "../SocketRouter";
 
-const handler: ServerSocketHandler = (data, fn, server, socket) => {
+const handler: ServerSocketHandler = ({ fn, server }) => {
   const room = server.sockets.adapter.rooms[Rooms.Client];
   if (!room) {
     fn({
@@ -37,12 +37,16 @@ const handler: ServerSocketHandler = (data, fn, server, socket) => {
 
   clients = []; // clear
   for (let key in sockets) {
-    server.sockets.sockets[key].emit("get_client", {}, (res: SocketResponseParams) => {
-      const client = res.data.socket;
-      if (client.id) {
-        server.to(Rooms.Console).emit("put_client", { socket: client });
-      }
-    });
+    server.sockets.sockets[key].emit(
+      "get_client",
+      {},
+      (res: SocketResponseParams) => {
+        const client = res.data.socket;
+        if (client.id) {
+          server.to(Rooms.Console).emit("put_client", { socket: client });
+        }
+      },
+    );
   }
 };
 

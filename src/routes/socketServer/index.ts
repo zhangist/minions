@@ -41,15 +41,15 @@ export default (server: sio.Server) => {
     socket.on("post_file", withServerSocket(server, socket, postFile));
     socket.on(
       "put_client",
-      withServerSocket(server, socket, (data, fn, server, socket) => {
+      withServerSocket(server, socket, (ctx) => {
         // broadcast
-        server.to(Rooms.Console).emit("put_client", { socket: data.socket });
+        server.to(Rooms.Console).emit("put_client", { socket: ctx.data.socket });
       }),
     );
     socket.on(
       "get_rooms",
-      withServerSocket(server, socket, (data, fn, server, socket) => {
-        console.log(socket.rooms);
+      withServerSocket(server, socket, (ctx) => {
+        console.log(ctx.socket.rooms);
       }),
     );
   });

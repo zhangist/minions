@@ -17,8 +17,7 @@ export default (socket: SocketIOClient.Socket) => {
   socket.on("post_file", withSocket(socket, postFile));
   socket.on(
     "get_client",
-    withSocket(socket, (data, fn) => {
-      console.log(111);
+    withSocket(socket, ({ fn }) => {
       fn({
         code: 0,
         data: {
