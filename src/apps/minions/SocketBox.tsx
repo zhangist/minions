@@ -3,6 +3,23 @@ import * as io from "socket.io-client";
 import AppWindow from "../../components/AppWindow";
 import { SocketHandler, ClientProps } from "./SocketRouter";
 
+function isJSON(str: string) {
+  if (typeof str == "string") {
+    try {
+      var obj = JSON.parse(str);
+      if (typeof obj == "object" && obj) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      console.log("error：" + str + "!!!" + e);
+      return false;
+    }
+  }
+  return false;
+}
+
 enum ConnectionState {
   Unconnected = "Unconnected",
   Connecting = "Connecting",
@@ -24,7 +41,8 @@ interface ISocketBoxState {
   showConnectionBox: boolean;
   connectionState: ConnectionState;
   socketUrl: string;
-  socketEvent: string;
+  socketEmitEvent: string;
+  socketEmitData: string;
   files: any[];
   clients: ClientProps[];
   windows: any[];
@@ -36,7 +54,8 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
     showConnectionBox: false,
     connectionState: ConnectionState.Unconnected,
     socketUrl: "http://localhost:1992?room=console",
-    socketEvent: "",
+    socketEmitEvent: "",
+    socketEmitData: "",
     files: [],
     clients: [
       {
@@ -77,8 +96,13 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
           <div>
             <input
               type="text"
-              value={this.state.socketEvent}
-              onChange={e => this.handleFieldChange(e, "socketEvent")}
+              value={this.state.socketEmitEvent}
+              onChange={e => this.handleFieldChange(e, "socketEmitEvent")}
+            />
+            <input
+              type="text"
+              value={this.state.socketEmitData}
+              onChange={e => this.handleFieldChange(e, "socketEmitData")}
             />
             <button onClick={this.emit}>Emit</button>
           </div>
@@ -101,6 +125,11 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
               );
             })
           : null}
+        <div style={{ wordBreak: "break-all" }}>
+          <div>emit event:</div>
+          <div
+          >{`post_files: {"to":[{"id":"0QQwBBvqHPHcVCLWAAAA"}],"files":[{"filename":"5C_7}MX%T]OEW9$)D()}FPY.png"}]}`}</div>
+        </div>
         {this.renderWindows()}
       </div>
     );
@@ -136,10 +165,15 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   };
 
   private emit = () => {
-    if (this.state.socketEvent && this.socket) {
-      this.socket.emit(this.state.socketEvent, {}, (res: any) => {
-        console.log(res);
-      });
+    if (this.state.socketEmitEvent && this.socket) {
+      const str = this.state.socketEmitData;
+      this.socket.emit(
+        this.state.socketEmitEvent,
+        isJSON(str) ? JSON.parse(str) : {},
+        (res: any) => {
+          console.log(res);
+        },
+      );
     }
   };
 

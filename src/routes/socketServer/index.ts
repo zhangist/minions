@@ -2,7 +2,7 @@ import * as sio from "socket.io";
 import * as url from "url";
 import { withServerSocket, Rooms } from "../SocketRouter";
 import getClients from "./getClients";
-import postFile from "./postFile";
+import postFiles from "./postFiles";
 
 export default (server: sio.Server) => {
   server.on("connection", socket => {
@@ -38,7 +38,7 @@ export default (server: sio.Server) => {
     });
 
     socket.on("get_clients", withServerSocket(server, socket, getClients));
-    socket.on("post_file", withServerSocket(server, socket, postFile));
+    socket.on("post_files", withServerSocket(server, socket, postFiles));
     socket.on(
       "put_client",
       withServerSocket(server, socket, (ctx) => {

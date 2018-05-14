@@ -1,10 +1,3 @@
-// set env
-import "./config/env";
-process.env.SERVER_FILES_DIR =
-  process.env.SERVER_FILES_DIR || path.resolve(__dirname, "../files/server");
-process.env.TEMP_DIR =
-  process.env.TEMP_DIR || path.resolve(__dirname, "../temp");
-
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as http from "http";
@@ -13,6 +6,13 @@ import * as sio from "socket.io";
 import * as multer from "multer";
 import apiRoutes from "./routes/api";
 import socketServerRoutes from "./routes/socketServer";
+
+// set env
+import "./config/env";
+process.env.SERVER_FILES_DIR =
+  process.env.SERVER_FILES_DIR || path.resolve(__dirname, "../files/server");
+process.env.TEMP_DIR =
+  process.env.TEMP_DIR || path.resolve(__dirname, "../temp");
 
 // init dir
 if (!fse.pathExistsSync(process.env.SERVER_FILES_DIR)) {

@@ -1,6 +1,6 @@
 import { withSocket } from "../SocketRouter";
 
-import postFile from "./postFile";
+import postFiles from "./postFiles";
 
 export default (socket: SocketIOClient.Socket) => {
   socket.on("connect", () => {
@@ -14,7 +14,7 @@ export default (socket: SocketIOClient.Socket) => {
       },
     });
   });
-  socket.on("post_file", withSocket(socket, postFile));
+  socket.on("post_files", withSocket(socket, postFiles));
   socket.on(
     "get_client",
     withSocket(socket, ({ fn }) => {

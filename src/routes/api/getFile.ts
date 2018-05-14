@@ -4,10 +4,7 @@ import { RequestHandler } from "express";
 
 const handler: RequestHandler = (req, res) => {
   if (!process.env.SERVER_FILES_DIR) {
-    res.status(500).send({
-      code: 500,
-      message: "File path missing",
-    });
+    res.status(404).end();
     return;
   }
 
@@ -17,10 +14,7 @@ const handler: RequestHandler = (req, res) => {
   if (filename && fs.existsSync(filePath)) {
     res.sendFile(filePath);
   } else {
-    res.status(404).send({
-      code: 404,
-      message: "File not found",
-    });
+    res.status(404).end();
   }
 };
 
