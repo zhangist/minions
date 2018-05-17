@@ -1,5 +1,5 @@
 import * as React from "react";
-import AppWindow from "../../components/AppWindow";
+import AppWindow from "../../../components/AppWindow";
 
 enum UploadState {
   Uploading = "Uploading",

@@ -1,18 +1,21 @@
 import * as React from "react";
 import Window, { WindowProps } from "../components/window";
 
-interface State {
+interface AppWindowState {
   windows: WindowProps[];
 }
 
 export default class AppWindow<
-  p = {},
-  s = State,
-  ss = any
-> extends React.Component {
-  public state: State = {
+  Props = any,
+  State = AppWindowState
+> extends React.Component<Props, {}> {
+  public state: AppWindowState = {
     windows: [],
   };
+
+  public constructor(props: any) {
+    super(props);
+  }
 
   public openWindows(apps: any[]) {
     this.state.windows.map(windowProps => {

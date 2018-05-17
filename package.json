@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "watch": "cross-env NODE_ENV=development webpack --config webpack.config.node.js --watch",
-    "dev:console": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.web.js",
-    "dev:server": "cross-env NODE_ENV=development nodemon dist/server.js --watch dist/server.js",
-    "dev:client": "cross-env NODE_ENV=development nodemon dist/client.js --watch dist/client.js",
+    "console:dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack.config.web.js",
+    "server:dev": "cross-env NODE_ENV=development nodemon dist/server.js --watch dist/server.js",
+    "client:dev": "cross-env NODE_ENV=development nodemon dist/client.js --watch dist/client.js",
     "build:web": "cross-env NODE_ENV=production webpack --config webpack.config.web.js",
     "build:node": "cross-env NODE_ENV=production webpack --config webpack.config.node.js",
     "build": "del-cli -f dist && npm run build:web && npm run build:node && copyfiles package.json dist"
@@ -46,7 +46,7 @@
     "del-cli": "~1.1.0",
     "html-webpack-plugin": "~3.2.0",
     "less": "^3.0.2",
-    "less-loader": "^4.1.0",
+    "less-loader": "~4.1.0",
     "nodemon": "~1.17.3",
     "prettier": "1.12.1",
     "style-loader": "~0.21.0",

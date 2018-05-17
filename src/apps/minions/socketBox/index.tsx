@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as io from "socket.io-client";
-import AppWindow from "../../components/AppWindow";
-import { SocketHandler, ClientProps } from "./SocketRouter";
+import AppWindow from "../../../components/AppWindow";
+import { SocketHandler, ClientProps } from "../SocketRouter";
+import SendFilesWindow from "./sendFilesWindow";
 
 function isJSON(str: string) {
   if (typeof str == "string") {
@@ -115,7 +116,12 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
                   <button
                     onClick={() =>
                       this.openWindows([
-                        { name: "Send Files", component: <div>1</div> },
+                        {
+                          name: "Send Files - " + (client.name || client.id),
+                          component: <SendFilesWindow client={client} />,
+                          width: 500,
+                          height: 300,
+                        },
                       ])
                     }
                   >
