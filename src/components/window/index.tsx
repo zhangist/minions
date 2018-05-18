@@ -1,8 +1,11 @@
 import * as React from "react";
+import { IconButton } from "../app";
+import IconClose from "@material-ui/icons/Close";
+import IconMenu from "@material-ui/icons/Menu";
 import "./style.less";
 
 export interface WindowProps {
-  unique: symbol;
+  unique: string;
   title: string;
   width: number;
   height: number;
@@ -75,7 +78,9 @@ export default class Window extends React.Component<WindowProps, {}> {
       >
         <div className="window-head">
           <div className="window-head-action-left">
-            <button>菜单</button>
+            <IconButton>
+              <IconMenu />
+            </IconButton>
           </div>
           <div
             className="window-head-title"
@@ -87,11 +92,11 @@ export default class Window extends React.Component<WindowProps, {}> {
             {this.props.closeBtn ? (
               this.props.closeBtn
             ) : (
-              <button
+              <IconButton
                 onClick={() => this.props.onClose && this.props.onClose()}
               >
-                关闭
-              </button>
+                <IconClose />
+              </IconButton>
             )}
           </div>
         </div>

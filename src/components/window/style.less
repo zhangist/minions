@@ -2,20 +2,22 @@
   display: flex;
   flex-direction: column;
   position: fixed;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   background: #fff;
   &.window-active {
     box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
   }
   .window-head {
-    flex: none;
+    flex: 0 0 32px;
     display: flex;
     user-select: none;
     word-break: keep-all;
     background: #f0f0f0;
   }
   .window-head-title {
-    flex: auto;
+    flex: 1 1 100%;
+    height: 32px;
+    line-height: 32px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;

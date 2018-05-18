@@ -22,7 +22,7 @@ export default class AppWindow<
       windowProps.isActive = false;
     });
     apps.map((app, index) => {
-      const unique = Symbol();
+      const unique = new Date().getTime() + Math.random().toString();
       this.state.windows.push({
         unique,
         id: app.id || null,
@@ -47,13 +47,13 @@ export default class AppWindow<
     return (
       <div>
         {this.state.windows.map((windowProps, index) => {
-          return <Window key={index} {...windowProps} />;
+          return <Window key={windowProps.unique} {...windowProps} />;
         })}
       </div>
     );
   }
 
-  private handleWindowActive(unique: symbol) {
+  private handleWindowActive(unique: string) {
     let zIndex = 0;
     for (let i = 0; i < this.state.windows.length; i++) {
       if (this.state.windows[i].unique === unique) {
@@ -78,7 +78,7 @@ export default class AppWindow<
     });
   }
 
-  private updateWindowProps(unique: symbol, diff: any) {
+  private updateWindowProps(unique: string, diff: any) {
     for (let i = 0; i < this.state.windows.length; i++) {
       if (this.state.windows[i].unique === unique) {
         this.state.windows[i] = Object.assign(this.state.windows[i], diff);
@@ -90,7 +90,7 @@ export default class AppWindow<
     }
   }
 
-  private closeWindow(unique: symbol) {
+  private closeWindow(unique: string) {
     for (let i = 0; i < this.state.windows.length; i++) {
       if (this.state.windows[i].unique === unique) {
         this.state.windows.splice(i, 1);
