@@ -1,6 +1,11 @@
 import * as sio from "socket.io";
 import * as url from "url";
-import { withServerSocket, Rooms } from "../SocketRouter";
+import {
+  withServerSocket,
+  Rooms,
+  PostClientData,
+  PostConsoleData,
+} from "../SocketRouter";
 import getClients from "./getClients";
 import postFiles from "./postFiles";
 
@@ -19,12 +24,16 @@ export default (server: sio.Server) => {
       const socketObj = {
         id: socket.id,
       };
-      let socketEvent = "post_client";
-      if (room === Rooms.Console) {
-        socketEvent = "post_console";
-      }
       // broadcast
-      server.to(Rooms.Console).emit(socketEvent, { socket: socketObj });
+      if (room === Rooms.Console) {
+        server
+          .to(Rooms.Console)
+          .emit("post_console", { console: socketObj } as PostConsoleData);
+      } else {
+        server
+          .to(Rooms.Console)
+          .emit("post_client", { client: socketObj } as PostClientData);
+      }
     });
 
     socket.on("disconnect", () => {
@@ -37,19 +46,30 @@ export default (server: sio.Server) => {
       server.to(Rooms.Console).emit("delete_socket", { socket: socketObj });
     });
 
+    // from console
     socket.on("get_clients", withServerSocket(server, socket, getClients));
     socket.on("post_files", withServerSocket(server, socket, postFiles));
     socket.on(
-      "put_client",
-      withServerSocket(server, socket, (ctx) => {
-        // broadcast
-        server.to(Rooms.Console).emit("put_client", { socket: ctx.data.socket });
+      "post_play",
+      withServerSocket(server, socket, ({ data }) => {
+        console.log(data);
       }),
     );
     socket.on(
       "get_rooms",
-      withServerSocket(server, socket, (ctx) => {
+      withServerSocket(server, socket, ctx => {
         console.log(ctx.socket.rooms);
+      }),
+    );
+
+    // from client
+    socket.on(
+      "put_client",
+      withServerSocket(server, socket, ctx => {
+        // broadcast
+        server
+          .to(Rooms.Console)
+          .emit("put_client", { socket: ctx.data.socket });
       }),
     );
   });

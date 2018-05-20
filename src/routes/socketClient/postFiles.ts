@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as http from "http";
-import { SocketHandler, FileProps } from "../SocketRouter";
+import { SocketHandler, File } from "../SocketRouter";
 
 const handler: SocketHandler = ({ data, fn }) => {
-  const files: FileProps[] = data.files || [];
+  const files: File[] = data.files || [];
   const filesLength = files.length;
-  const filesSuccess: FileProps[] = [];
-  const filesError: FileProps[] = [];
+  const filesSuccess: File[] = [];
+  const filesError: File[] = [];
 
   console.log(files);
   if (process.env.CLIENT_FILES_DIR) {
@@ -51,7 +51,7 @@ const handler: SocketHandler = ({ data, fn }) => {
     }
   } else {
     fn({
-      code: 0,
+      code: 1,
       data: { filesSuccess, filesError: files },
       message: "Save path missing.",
     });

@@ -2,7 +2,7 @@ import {
   Rooms,
   ServerSocketHandler,
   SocketResponseParams,
-  ClientProps,
+  Client,
 } from "../SocketRouter";
 
 const handler: ServerSocketHandler = ({ fn, server }) => {
@@ -18,7 +18,7 @@ const handler: ServerSocketHandler = ({ fn, server }) => {
     return;
   }
 
-  let clients: ClientProps[] = [];
+  let clients: Client[] = [];
   const sockets = room.sockets;
 
   for (let key in sockets) {

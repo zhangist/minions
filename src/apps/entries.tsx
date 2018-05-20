@@ -1,6 +1,6 @@
 import * as React from "react";
-import Minions from "./minions";
-import DateTime from "./dateTime";
+import Minions from "./Minions";
+import DateTime from "./DateTime";
 
 export default [
   {

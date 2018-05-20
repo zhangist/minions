@@ -1,6 +1,35 @@
-import { withSocket } from "../SocketRouter";
-
+import Speaker from "speaker";
+import { AudioContext } from "web-audio-api";
+import {
+  withSocket,
+  SocketHandler,
+  SocketResponse,
+  Audio,
+} from "../SocketRouter";
+import getClient from "./getClient";
 import postFiles from "./postFiles";
+import postPlayFile from "./postPlayFile";
+import postPlayStart from "./postPlayStart";
+
+const context = new AudioContext();
+context.outStream = new Speaker({
+  bitDepth: context.format.bitDepth,
+  channels: context.format.numberOfChannels,
+  sampleRate: context.format.sampleRate,
+});
+const audio: Audio = {
+  context,
+};
+
+function withAudioContextSocket(
+  audio: Audio,
+  socket: SocketIOClient.Socket,
+  route: SocketHandler,
+) {
+  return (data: any, fn: SocketResponse) => {
+    route({ data, fn, socket, audio });
+  };
+}
 
 export default (socket: SocketIOClient.Socket) => {
   socket.on("connect", () => {
@@ -15,18 +44,13 @@ export default (socket: SocketIOClient.Socket) => {
     });
   });
   socket.on("post_files", withSocket(socket, postFiles));
+  socket.on("get_client", withSocket(socket, getClient));
   socket.on(
-    "get_client",
-    withSocket(socket, ({ fn }) => {
-      fn({
-        code: 0,
-        data: {
-          socket: {
-            id: socket.id,
-            name: process.env.CLIENT_NAME,
-          },
-        },
-      });
-    }),
+    "post_play_file",
+    withAudioContextSocket(audio, socket, postPlayFile),
+  );
+  socket.on(
+    "post_play_start",
+    withAudioContextSocket(audio, socket, postPlayStart),
   );
 };

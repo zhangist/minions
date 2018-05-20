@@ -1,19 +1,25 @@
 import * as sio from "socket.io";
+import { AudioContext } from "web-audio-api";
 
 export enum Rooms {
   Console = "console",
   Client = "client",
 }
 
-export interface FileProps {
+export interface File {
   filename: string;
   url?: string;
 }
 
-export interface ClientProps {
+export interface Client {
   id: string;
   name?: string;
-  files?: FileProps[];
+  files?: File[];
+}
+
+export interface Audio {
+  context: AudioContext;
+  bufferNode?: AudioBufferSourceNode;
 }
 
 export interface SocketResponseParams {
@@ -24,22 +30,23 @@ export interface SocketResponseParams {
 
 export type SocketResponse = (params: SocketResponseParams) => void;
 
-export interface ContextProps {
+export interface Context {
   socket: SocketIOClient.Socket;
   data: any;
   fn: SocketResponse;
+  audio?: Audio;
 }
 
-export interface ContextServerProps {
+export interface ServerContext {
   server: sio.Server;
   socket: sio.Socket;
   data: any;
   fn: SocketResponse;
 }
 
-export type SocketHandler = (ctx: ContextProps) => void;
+export type SocketHandler = (ctx: Context) => void;
 
-export type ServerSocketHandler = (ctx: ContextServerProps) => void;
+export type ServerSocketHandler = (ctx: ServerContext) => void;
 
 export const withSocket = (
   socket: SocketIOClient.Socket,
@@ -59,3 +66,23 @@ export const withServerSocket = (
     route({ data, fn, server, socket });
   };
 };
+
+export interface PostClientParams {
+  client: Client;
+}
+export interface PostClientData {
+  client: Client;
+}
+export type PostClientHandler = (
+  data: PostClientData,
+) => void;
+
+export interface PostConsoleParams {
+  console: Client;
+}
+export interface PostConsoleData {
+  console: Client;
+}
+export type PostConsoleHandler = (
+  data: PostConsoleData,
+) => void;

@@ -1,7 +1,8 @@
 import {
   SocketHandler,
   SocketResponse,
-  ClientProps,
+  Client,
+  PostClientHandler,
 } from "../../routes/SocketRouter";
 
-export { SocketHandler, SocketResponse, ClientProps };
+export { SocketHandler, SocketResponse, Client, PostClientHandler };

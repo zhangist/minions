@@ -1,18 +1,18 @@
 import * as fs from "fs";
 import * as path from "path";
 import {
-  FileProps,
-  ClientProps,
+  File,
+  Client,
   ServerSocketHandler,
   SocketResponseParams,
 } from "../SocketRouter";
 
 const handler: ServerSocketHandler = ({ data, fn, server, socket }) => {
-  const to: ClientProps[] = data.to || [];
-  const files: FileProps[] = data.files || [];
+  const to: Client[] = data.to || [];
+  const files: File[] = data.files || [];
   if (to.length === 0) {
     fn({
-      code: 0,
+      code: 1,
       data: {},
       message: "Field 'to' is required.",
     });
@@ -21,7 +21,7 @@ const handler: ServerSocketHandler = ({ data, fn, server, socket }) => {
 
   if (files.length === 0) {
     fn({
-      code: 0,
+      code: 1,
       data: {},
       message: "Field 'files' is required.",
     });

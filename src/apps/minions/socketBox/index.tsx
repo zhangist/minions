@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as io from "socket.io-client";
 import AppWindow from "../../../components/AppWindow";
-import { SocketHandler, ClientProps } from "../SocketRouter";
-import SendFilesWindow from "./sendFilesWindow";
+import { SocketHandler, Client, PostClientHandler } from "../SocketRouter";
+import SendFilesWindow from "./SendFilesWindow";
 
 function isJSON(str: string) {
   if (typeof str == "string") {
@@ -45,7 +45,7 @@ interface ISocketBoxState {
   socketEmitEvent: string;
   socketEmitData: string;
   files: any[];
-  clients: ClientProps[];
+  clients: Client[];
   windows: any[];
 }
 
@@ -118,7 +118,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
                       this.openWindows([
                         {
                           name: "Send Files - " + (client.name || client.id),
-                          component: <SendFilesWindow client={client} />,
+                          component: <SendFilesWindow clients={[client]} />,
                           width: 500,
                           height: 300,
                         },
@@ -134,7 +134,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
         <div style={{ wordBreak: "break-all" }}>
           <div>emit event:</div>
           <div
-          >{`post_files: {"to":[{"id":"0QQwBBvqHPHcVCLWAAAA"}],"files":[{"filename":"5C_7}MX%T]OEW9$)D()}FPY.png"}]}`}</div>
+          >{`post_files: { "to": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
         </div>
         {this.renderWindows()}
       </div>
@@ -281,26 +281,26 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   };
 
   private onSocketEventPostClient = () => {
-    this.socket.on("post_client", ((data: { socket: ClientProps }) => {
+    this.socket.on("post_client", ((data) => {
       let isExist = false;
-      const socket = data.socket;
+      const client = data.client;
       const clients = this.state.clients;
       for (let i = 0; i < clients.length; i++) {
-        if (clients[i].id === socket.id) {
+        if (clients[i].id === client.id) {
           isExist = true;
-          Object.assign(clients[i], socket);
+          Object.assign(clients[i], client);
           break;
         }
       }
       if (!isExist) {
-        this.state.clients.push(socket);
+        this.state.clients.push(client);
       }
       this.setState({});
-    }) as SocketHandler);
+    }) as PostClientHandler);
   };
 
   private onSocketEventDeleteSocket = () => {
-    this.socket.on("delete_socket", ((data: { socket: ClientProps }) => {
+    this.socket.on("delete_socket", ((data: { socket: Client }) => {
       const clients = this.state.clients;
       for (let i = 0; i < clients.length; i++) {
         if (clients[i].id === data.socket.id) {
@@ -313,7 +313,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   };
 
   private onSocketEventPutClient = () => {
-    this.socket.on("put_client", ((data: { socket: ClientProps }) => {
+    this.socket.on("put_client", ((data: { socket: Client }) => {
       const clients = this.state.clients;
       const socket = data.socket;
       for (let i = 0; i < clients.length; i++) {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import AppWindow from "../../components/AppWindow";
-import SocketBox from "./socketBox";
-import UploadBox from "./uploadBox";
+import SocketBox from "./SocketBox";
+import UploadBox from "./UploadBox";
 import "./style.less";
 
 interface MinionsState {
