@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as io from "socket.io-client";
 import AppWindow from "../../../components/AppWindow";
-import { SocketHandler, Client, PostClientHandler } from "../SocketRouter";
+import { SocketHandler, Client, PostClientData } from "../SocketRouter";
 import SendFilesWindow from "./SendFilesWindow";
 
 function isJSON(str: string) {
@@ -104,6 +104,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
               type="text"
               value={this.state.socketEmitData}
               onChange={e => this.handleFieldChange(e, "socketEmitData")}
+              style={{ width: "300px" }}
             />
             <button onClick={this.emit}>Emit</button>
           </div>
@@ -112,7 +113,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
           ? this.state.clients.map(client => {
               return (
                 <div key={client.id}>
-                  {client.name || client.id}
+                  {client.name || ""} - {client.id}
                   <button
                     onClick={() =>
                       this.openWindows([
@@ -134,7 +135,10 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
         <div style={{ wordBreak: "break-all" }}>
           <div>emit event:</div>
           <div
-          >{`post_files: { "to": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
+          >{`post_files: { "clients": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
+          <div
+          >{`post_play_file: { "clients": [{ "id": "socket_id" }], "file": [{ "filename": "filename.mp3" }] }`}</div>
+          <div>{`post_play_start: { "clients": [{ "id": "socket_id" }] }`}</div>
         </div>
         {this.renderWindows()}
       </div>
@@ -281,7 +285,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   };
 
   private onSocketEventPostClient = () => {
-    this.socket.on("post_client", ((data) => {
+    this.socket.on("post_client", (data: PostClientData) => {
       let isExist = false;
       const client = data.client;
       const clients = this.state.clients;
@@ -296,7 +300,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
         this.state.clients.push(client);
       }
       this.setState({});
-    }) as PostClientHandler);
+    });
   };
 
   private onSocketEventDeleteSocket = () => {

@@ -1,16 +1,16 @@
 import * as fs from "fs";
 import * as path from "path";
 import {
-  File,
-  Client,
   ServerSocketHandler,
-  SocketResponseParams,
+  PostFilesData,
+  PostFilesResponseParams,
 } from "../SocketRouter";
 
 const handler: ServerSocketHandler = ({ data, fn, server, socket }) => {
-  const to: Client[] = data.to || [];
-  const files: File[] = data.files || [];
-  if (to.length === 0) {
+  const postFilesData: PostFilesData = data;
+  const clients = postFilesData.clients;
+  const files = postFilesData.files;
+  if (clients.length === 0) {
     fn({
       code: 1,
       data: {},
@@ -46,17 +46,17 @@ const handler: ServerSocketHandler = ({ data, fn, server, socket }) => {
     }
   }
 
-  const result: SocketResponseParams[] = [];
+  const result: PostFilesResponseParams[] = [];
   let count = 0;
 
-  for (let i = 0; i < to.length; i++) {
-    const key = to[i].id;
+  for (let i = 0; i < clients.length; i++) {
+    const key = clients[i].id;
     const client = server.sockets.sockets[key];
     if (client) {
-      client.emit("post_files", { files }, (res: SocketResponseParams) => {
+      client.emit("post_files", { files } as PostFilesData, (res: PostFilesResponseParams) => {
         count = count + 1;
         result.push(res);
-        if (count === to.length) {
+        if (count === clients.length) {
           fn({
             code: 0,
             data: result,

@@ -2,7 +2,7 @@ import {
   SocketHandler,
   SocketResponse,
   Client,
-  PostClientHandler,
+  PostClientData,
 } from "../../routes/SocketRouter";
 
-export { SocketHandler, SocketResponse, Client, PostClientHandler };
+export { SocketHandler, SocketResponse, Client, PostClientData };

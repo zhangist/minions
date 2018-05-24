@@ -53,7 +53,19 @@ export const withSocket = (
   route: SocketHandler,
 ) => {
   return (data: any, fn: SocketResponse) => {
+    fn = fn || (() => {});
     route({ data, fn, socket });
+  };
+};
+
+export const withAudioSocket = (
+  audio: Audio,
+  socket: SocketIOClient.Socket,
+  route: SocketHandler,
+) => {
+  return (data: any, fn: SocketResponse) => {
+    fn = fn || (() => {});
+    route({ data, fn, socket, audio });
   };
 };
 
@@ -67,22 +79,34 @@ export const withServerSocket = (
   };
 };
 
-export interface PostClientParams {
-  client: Client;
+// post_files
+export interface PostFilesResponseParams extends SocketResponseParams {}
+export interface PostFilesData {
+  clients: Client[];
+  files: File[];
 }
+
+// post_client
+export interface PostClientResponseParams extends SocketResponseParams {}
 export interface PostClientData {
   client: Client;
 }
-export type PostClientHandler = (
-  data: PostClientData,
-) => void;
 
-export interface PostConsoleParams {
-  console: Client;
-}
+// post_console
+export interface PostConsoleResponseParams extends SocketResponseParams {}
 export interface PostConsoleData {
   console: Client;
 }
-export type PostConsoleHandler = (
-  data: PostConsoleData,
-) => void;
+
+// post_play_file
+export interface PostPlayFileResponseParams extends SocketResponseParams {}
+export interface PostPlayFileData {
+  clients: Client[];
+  file: File;
+}
+
+// post_play_start
+export interface PostPlayStartResponseParams extends SocketResponseParams {}
+export interface PostPlayStartData {
+  clients: Client[];
+}

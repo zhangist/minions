@@ -1,7 +1,6 @@
 import * as fse from "fs-extra";
 import * as path from "path";
 import * as sioClient from "socket.io-client";
-import socketClientRoutes from "./routes/socketClient";
 
 // set env
 import "./config/env";
@@ -9,6 +8,9 @@ process.env.CLIENT_FILES_DIR =
   process.env.CLIENT_FILES_DIR || path.resolve(__dirname, "../files/client");
 process.env.TEMP_DIR =
   process.env.TEMP_DIR || path.resolve(__dirname, "../temp");
+
+// socket client routes
+import socketClientRoutes from "./routes/socketClient";
 
 // init dir
 if (!fse.pathExistsSync(process.env.CLIENT_FILES_DIR)) {

@@ -12,7 +12,7 @@ const handler: SocketHandler = ({ audio, data, fn }) => {
     return;
   }
 
-  if (!data.filename) {
+  if (!data.file) {
     fn({
       code: 1,
       data: {},
@@ -30,7 +30,7 @@ const handler: SocketHandler = ({ audio, data, fn }) => {
     return;
   }
 
-  const filePath = path.resolve(process.env.CLIENT_FILES_DIR, data.filename);
+  const filePath = path.resolve(process.env.CLIENT_FILES_DIR, data.file.filename);
   if (!fs.existsSync(filePath)) {
     // file not found
     fn({

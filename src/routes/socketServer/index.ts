@@ -8,6 +8,8 @@ import {
 } from "../SocketRouter";
 import getClients from "./getClients";
 import postFiles from "./postFiles";
+import postPlayFile from "./postPlayFile";
+import postPlayStart from "./postPlayStart";
 
 export default (server: sio.Server) => {
   server.on("connection", socket => {
@@ -49,12 +51,8 @@ export default (server: sio.Server) => {
     // from console
     socket.on("get_clients", withServerSocket(server, socket, getClients));
     socket.on("post_files", withServerSocket(server, socket, postFiles));
-    socket.on(
-      "post_play",
-      withServerSocket(server, socket, ({ data }) => {
-        console.log(data);
-      }),
-    );
+    socket.on("post_play_file", withServerSocket(server, socket, postPlayFile));
+    socket.on("post_play_start", withServerSocket(server, socket, postPlayStart));
     socket.on(
       "get_rooms",
       withServerSocket(server, socket, ctx => {
