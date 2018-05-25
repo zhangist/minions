@@ -109,4 +109,5 @@ export interface PostPlayFileData {
 export interface PostPlayStartResponseParams extends SocketResponseParams {}
 export interface PostPlayStartData {
   clients: Client[];
+  file?: File;
 }
