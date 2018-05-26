@@ -44,6 +44,7 @@ interface ISocketBoxState {
   socketUrl: string;
   socketEmitEvent: string;
   socketEmitData: string;
+  selectedClients: any;
   files: any[];
   clients: Client[];
   windows: any[];
@@ -57,6 +58,7 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
     socketUrl: "http://localhost:1992?room=console",
     socketEmitEvent: "",
     socketEmitData: "",
+    selectedClients: {},
     files: [],
     clients: [
       {
@@ -73,65 +75,73 @@ export default class SocketBox extends AppWindow<{}, ISocketBoxState> {
   };
 
   public render() {
+    const {
+      clients,
+      connectionState,
+      showConnectionBox,
+      socketUrl,
+      socketEmitEvent,
+      socketEmitData,
+      selectedClients,
+    } = this.state;
     return (
       <div>
         <button
           onClick={() =>
-            this.setState({ showConnectionBox: !this.state.showConnectionBox })
+            this.setState({ showConnectionBox: !showConnectionBox })
           }
         >
           Open Connection Box
         </button>
-        <span>{this.state.connectionState}</span>
-        {this.state.showConnectionBox ? (
+        <span>{connectionState}</span>
+        {showConnectionBox ? (
           <div>
             <input
               type="text"
-              value={this.state.socketUrl}
+              value={socketUrl}
               onChange={e => this.handleFieldChange(e, "socketUrl")}
             />
             <button onClick={() => this.connect()}>Connect</button>
           </div>
         ) : null}
-        {this.state.connectionState === ConnectionState.Connected ? (
+        {connectionState === ConnectionState.Connected ? (
           <div>
             <input
               type="text"
-              value={this.state.socketEmitEvent}
+              value={socketEmitEvent}
               onChange={e => this.handleFieldChange(e, "socketEmitEvent")}
             />
             <input
               type="text"
-              value={this.state.socketEmitData}
+              value={socketEmitData}
               onChange={e => this.handleFieldChange(e, "socketEmitData")}
               style={{ width: "300px" }}
             />
             <button onClick={this.emit}>Emit</button>
           </div>
         ) : null}
-        {this.state.clients.length > 0
-          ? this.state.clients.map(client => {
-              return (
-                <div key={client.id}>
-                  {client.name || ""} - {client.id}
-                  <button
-                    onClick={() =>
-                      this.openWindows([
-                        {
-                          name: "Send Files - " + (client.name || client.id),
-                          component: <SendFilesWindow clients={[client]} />,
-                          width: 500,
-                          height: 300,
-                        },
-                      ])
-                    }
-                  >
-                    Send Files
-                  </button>
-                </div>
-              );
-            })
-          : null}
+        {clients.map(client => {
+          return (
+            <div key={client.id}>
+              <input type="checkbox" checked={selectedClients[client.id]} />
+              {client.name || ""} - {client.id}
+              <button
+                onClick={() =>
+                  this.openWindows([
+                    {
+                      name: "Send Files - " + (client.name || client.id),
+                      component: <SendFilesWindow clients={[client]} />,
+                      width: 500,
+                      height: 300,
+                    },
+                  ])
+                }
+              >
+                Send Files
+              </button>
+            </div>
+          );
+        })}
         <div style={{ wordBreak: "break-all" }}>
           <div>emit event:</div>
           <div
