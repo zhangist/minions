@@ -3,11 +3,19 @@ import * as io from "socket.io-client";
 import Checkbox from "@material-ui/core/Checkbox";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import Tooltip from "@material-ui/core/Tooltip";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 import Audiotrack from "@material-ui/icons/Audiotrack";
 import PlayArrow from "@material-ui/icons/PlayArrow";
-import { Button } from "../../../components/app";
+import Help from "@material-ui/icons/Help";
+import ExpandLess from "@material-ui/icons/ExpandLess";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+import Publish from "@material-ui/icons/Publish";
+import { IconButton } from "../../../components/app";
 import AppWindow from "../../../components/AppWindow";
-import { SocketHandler, Client, PostClientData } from "../SocketRouter";
+import { SocketHandler, Client, File, PostClientData } from "../SocketRouter";
 
 function isJSON(str: string) {
   if (typeof str == "string") {
@@ -48,6 +56,10 @@ interface MyClient extends Client {
   isSelected?: boolean;
 }
 
+interface MyFile extends File {
+  isSelected?: boolean;
+}
+
 interface SocketBoxState {
   showConnectionBox: boolean;
   connectionState: ConnectionState;
@@ -55,7 +67,7 @@ interface SocketBoxState {
   socketEmitEvent: string;
   socketEmitData: string;
   actionTabIndex: number;
-  files: any[];
+  files: MyFile[];
   clients: MyClient[];
   windows: any[];
 }
@@ -69,7 +81,11 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
     socketEmitEvent: "",
     socketEmitData: "",
     actionTabIndex: 0,
-    files: [],
+    files: [
+      { filename: "test.mp3" },
+      { filename: "test2.mp3" },
+      { filename: "test3.mp3" },
+    ],
     clients: [
       {
         id: "1",
@@ -93,9 +109,16 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
     windows: [],
   };
 
+  public componentWillUnmount() {
+    if (this.socket) {
+      this.socket.close();
+    }
+  }
+
   public render() {
     const {
       clients,
+      files,
       connectionState,
       showConnectionBox,
       socketUrl,
@@ -139,41 +162,92 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
             <button onClick={this.emit}>Emit</button>
           </div>
         ) : null}
-        <div>
+        <List style={{ padding: "10px", backgroundColor: "#fff" }}>
           {clients.map(client => {
-            return (
-              <div key={client.id}>
+            return [
+              <ListItem
+                key={client.id}
+                button
+                disableRipple
+                style={{ padding: "0 8px" }}
+                onClick={() => this.openClientDetail(client)}
+              >
                 <Checkbox
+                  onClick={e => e.stopPropagation()}
                   onChange={e => this.handleClientSelect(e, client)}
                   checked={client.isSelected}
                 />
-                <span>
+                <ListItemText>
                   {client.name || ""} - {client.id}
-                </span>
-                <Button onClick={() => this.openClientDetail(client)}>
-                  Detail
-                </Button>
-                {client.isOpenDetail ? <div>files: test.mp3</div> : null}
-              </div>
-            );
+                </ListItemText>
+                {client.isOpenDetail ? <ExpandLess /> : <ExpandMore />}
+              </ListItem>,
+              client.isOpenDetail ? (
+                <List key={"detail" + client.id}>
+                  <ListItem>
+                    <div>files: test.mp3</div>
+                  </ListItem>
+                </List>
+              ) : null,
+            ];
           })}
-        </div>
+        </List>
         <Tabs value={actionTabIndex} onChange={this.handleActionTabChange}>
           <Tab icon={<Audiotrack />} />
           <Tab icon={<PlayArrow />} />
+          <Tab icon={<Help />} />
         </Tabs>
         <div style={{ padding: "10px", backgroundColor: "#fff" }}>
-          {actionTabIndex === 0 && <div>Send Files</div>}
+          {actionTabIndex === 0 && (
+            <div>
+              <div>
+                <span>Send Files</span>
+                <Tooltip title="Send all the selected">
+                  <IconButton>
+                    <Publish />
+                  </IconButton>
+                </Tooltip>
+              </div>
+              <List>
+                {files.map(file => (
+                  <ListItem
+                    key={file.filename}
+                    button
+                    disableRipple
+                    style={{ padding: "0 8px" }}
+                  >
+                    <Checkbox
+                      onChange={e => this.handleFileSelect(e, file)}
+                      checked={file.isSelected}
+                    />
+                    <ListItemText>{file.filename}</ListItemText>
+                    <Tooltip title={file.filename}>
+                      <div>{"1/3"}</div>
+                    </Tooltip>
+                    <Tooltip title="Send">
+                      <IconButton>
+                        <Publish />
+                      </IconButton>
+                    </Tooltip>
+                  </ListItem>
+                ))}
+              </List>
+            </div>
+          )}
           {actionTabIndex === 1 && <div>Play</div>}
-        </div>
-        <br />
-        <div style={{ wordBreak: "break-all" }}>
-          <div>emit event:</div>
-          <div
-          >{`post_files: { "clients": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
-          <div
-          >{`post_play_file: { "clients": [{ "id": "socket_id" }], "file": [{ "filename": "filename.mp3" }] }`}</div>
-          <div>{`post_play_start: { "clients": [{ "id": "socket_id" }] }`}</div>
+          {actionTabIndex === 2 && (
+            <div>
+              <div style={{ wordBreak: "break-all" }}>
+                <div>emit event:</div>
+                <div
+                >{`post_files: { "clients": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
+                <div
+                >{`post_play_file: { "clients": [{ "id": "socket_id" }], "file": [{ "filename": "filename.mp3" }] }`}</div>
+                <div
+                >{`post_play_start: { "clients": [{ "id": "socket_id" }] }`}</div>
+              </div>
+            </div>
+          )}
         </div>
         {this.renderWindows()}
       </div>
@@ -236,6 +310,14 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
     client: MyClient,
   ) => {
     client.isSelected = e.target.checked;
+    this.setState({});
+  };
+
+  private handleFileSelect = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    file: MyFile,
+  ) => {
+    file.isSelected = e.target.checked;
     this.setState({});
   };
 
