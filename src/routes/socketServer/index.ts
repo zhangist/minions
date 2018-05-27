@@ -7,6 +7,7 @@ import {
   PostConsoleData,
 } from "../SocketRouter";
 import getClients from "./getClients";
+import getFiles from "./getFiles";
 import postFiles from "./postFiles";
 import postPlayFile from "./postPlayFile";
 import postPlayStart from "./postPlayStart";
@@ -50,6 +51,7 @@ export default (server: sio.Server) => {
 
     // from console
     socket.on("get_clients", withServerSocket(server, socket, getClients));
+    socket.on("get_files", withServerSocket(server, socket, getFiles));
     socket.on("post_files", withServerSocket(server, socket, postFiles));
     socket.on("post_play_file", withServerSocket(server, socket, postPlayFile));
     socket.on("post_play_start", withServerSocket(server, socket, postPlayStart));
