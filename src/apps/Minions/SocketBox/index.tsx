@@ -7,6 +7,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+import SignalCellular4Bar from "@material-ui/icons/SignalCellular4Bar";
+import SignalWifiOff from "@material-ui/icons/SignalWifiOff";
 import Audiotrack from "@material-ui/icons/Audiotrack";
 import PlayArrow from "@material-ui/icons/PlayArrow";
 import Help from "@material-ui/icons/Help";
@@ -127,42 +129,15 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
       actionTabIndex,
     } = this.state;
     return (
-      <div>
-        <button
-          onClick={() =>
-            this.setState({ showConnectionBox: !showConnectionBox })
-          }
+      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <List
+          style={{
+            flex: "auto",
+            overflow: "auto",
+            padding: "10px",
+            backgroundColor: "#fff",
+          }}
         >
-          Open Connection Box
-        </button>
-        <span>{connectionState}</span>
-        {showConnectionBox ? (
-          <div>
-            <input
-              type="text"
-              value={socketUrl}
-              onChange={e => this.handleFieldChange(e, "socketUrl")}
-            />
-            <button onClick={() => this.connect()}>Connect</button>
-          </div>
-        ) : null}
-        {connectionState === ConnectionState.Connected ? (
-          <div>
-            <input
-              type="text"
-              value={socketEmitEvent}
-              onChange={e => this.handleFieldChange(e, "socketEmitEvent")}
-            />
-            <input
-              type="text"
-              value={socketEmitData}
-              onChange={e => this.handleFieldChange(e, "socketEmitData")}
-              style={{ width: "300px" }}
-            />
-            <button onClick={this.emit}>Emit</button>
-          </div>
-        ) : null}
-        <List style={{ padding: "10px", backgroundColor: "#fff" }}>
           {clients.map(client => {
             return [
               <ListItem
@@ -192,13 +167,80 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
             ];
           })}
         </List>
-        <Tabs value={actionTabIndex} onChange={this.handleActionTabChange}>
+        <Tabs
+          value={actionTabIndex}
+          onChange={this.handleActionTabChange}
+          style={{ flex: "none" }}
+        >
+          <Tab
+            icon={
+              connectionState === ConnectionState.Connected ? (
+                <SignalCellular4Bar style={{ color: "#21b989" }} />
+              ) : (
+                <SignalWifiOff style={{ color: "#666" }} />
+              )
+            }
+          />
           <Tab icon={<Audiotrack />} />
           <Tab icon={<PlayArrow />} />
           <Tab icon={<Help />} />
         </Tabs>
-        <div style={{ padding: "10px", backgroundColor: "#fff" }}>
+        <div
+          style={{
+            flex: "auto",
+            overflow: "auto",
+            padding: "10px",
+            backgroundColor: "#fff",
+          }}
+        >
           {actionTabIndex === 0 && (
+            <div>
+              <button
+                onClick={() =>
+                  this.setState({ showConnectionBox: !showConnectionBox })
+                }
+              >
+                Open Connection Box
+              </button>
+              <span>{connectionState}</span>
+              {showConnectionBox ? (
+                <div>
+                  <input
+                    type="text"
+                    value={socketUrl}
+                    onChange={e => this.handleFieldChange(e, "socketUrl")}
+                  />
+                  <button onClick={() => this.connect()}>Connect</button>
+                </div>
+              ) : null}
+              {connectionState === ConnectionState.Connected ? (
+                <div>
+                  <input
+                    type="text"
+                    value={socketEmitEvent}
+                    onChange={e => this.handleFieldChange(e, "socketEmitEvent")}
+                  />
+                  <input
+                    type="text"
+                    value={socketEmitData}
+                    onChange={e => this.handleFieldChange(e, "socketEmitData")}
+                    style={{ width: "300px" }}
+                  />
+                  <button onClick={this.emit}>Emit</button>
+                </div>
+              ) : null}
+              <div style={{ wordBreak: "break-all" }}>
+                <div>emit event:</div>
+                <div
+                >{`post_files: { "clients": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
+                <div
+                >{`post_play_file: { "clients": [{ "id": "socket_id" }], "file": [{ "filename": "filename.mp3" }] }`}</div>
+                <div
+                >{`post_play_start: { "clients": [{ "id": "socket_id" }] }`}</div>
+              </div>
+            </div>
+          )}
+          {actionTabIndex === 1 && (
             <div>
               <div>
                 <span>Send Files</span>
@@ -221,9 +263,11 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
                       checked={file.isSelected}
                     />
                     <ListItemText>{file.filename}</ListItemText>
-                    <Tooltip title={file.filename}>
-                      <div>{"1/3"}</div>
-                    </Tooltip>
+                    <div style={{ margin: "0 10px" }}>
+                      <Tooltip title={file.filename}>
+                        <span>{"1/3"}</span>
+                      </Tooltip>
+                    </div>
                     <Tooltip title="Send">
                       <IconButton>
                         <Publish />
@@ -234,20 +278,8 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
               </List>
             </div>
           )}
-          {actionTabIndex === 1 && <div>Play</div>}
-          {actionTabIndex === 2 && (
-            <div>
-              <div style={{ wordBreak: "break-all" }}>
-                <div>emit event:</div>
-                <div
-                >{`post_files: { "clients": [{ "id": "socket_id" }], "files": [{ "filename": "filename.mp3" }] }`}</div>
-                <div
-                >{`post_play_file: { "clients": [{ "id": "socket_id" }], "file": [{ "filename": "filename.mp3" }] }`}</div>
-                <div
-                >{`post_play_start: { "clients": [{ "id": "socket_id" }] }`}</div>
-              </div>
-            </div>
-          )}
+          {actionTabIndex === 2 && <div>Play</div>}
+          {actionTabIndex === 3 && <div>Help</div>}
         </div>
         {this.renderWindows()}
       </div>

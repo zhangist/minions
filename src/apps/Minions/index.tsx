@@ -40,7 +40,7 @@ export default class Minions extends AppWindow<{}, MinionsState> {
           <Tab label="Clients" />
           <Tab label="Files" />
         </Tabs>
-        <div style={{ flex: "auto", overflow: "auto" }}>
+        <div style={{ flex: "1 1 100%", overflow: "auto" }}>
           <div
             className="c-box"
             style={{ display: tabIndex === 0 ? "block" : "none" }}
