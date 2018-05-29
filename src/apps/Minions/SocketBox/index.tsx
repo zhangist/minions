@@ -59,7 +59,10 @@ interface MyClient extends Client {
 }
 
 interface MyFile extends File {
+  isOpenDetail?: boolean;
   isSelected?: boolean;
+  existSelectedClients?: Client[];
+  nonExistSelectdClients?: Client[];
 }
 
 interface SocketBoxState {
@@ -94,7 +97,7 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
         name: "test",
         files: [
           {
-            filename: "1.mp3",
+            filename: "test.mp3",
           },
         ],
       },
@@ -103,7 +106,7 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
         name: "test2",
         files: [
           {
-            filename: "2.mp3",
+            filename: "test2.mp3",
           },
         ],
       },
@@ -128,6 +131,7 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
       socketEmitData,
       actionTabIndex,
     } = this.state;
+
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <List
@@ -265,7 +269,12 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
                     <ListItemText>{file.filename}</ListItemText>
                     <div style={{ margin: "0 10px" }}>
                       <Tooltip title={file.filename}>
-                        <span>{"1/3"}</span>
+                        <span>
+                          {(file.existSelectedClients || []).length +
+                            "/" +
+                            ((file.existSelectedClients || []).length +
+                              (file.nonExistSelectdClients || []).length)}
+                        </span>
                       </Tooltip>
                     </div>
                     <Tooltip title="Send">
@@ -279,7 +288,28 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
             </div>
           )}
           {actionTabIndex === 2 && <div>Play</div>}
-          {actionTabIndex === 3 && <div>Help</div>}
+          {actionTabIndex === 3 && (
+            <div>
+              <h4>Workflow:</h4>
+              <div>Step 1:</div>
+              <div>
+                <SignalWifiOff /> connect to server.
+              </div>
+              <div>Step 2:</div>
+              <div>
+                <Audiotrack /> send files to clients.
+              </div>
+              <div>Step 3:</div>
+              <div>
+                <PlayArrow /> Play.
+              </div>
+              <br />
+              <h4>Icons:</h4>
+              <div>
+                <Publish /> Send file/files.
+              </div>
+            </div>
+          )}
         </div>
         {this.renderWindows()}
       </div>
@@ -342,6 +372,31 @@ export default class SocketBox extends AppWindow<{}, SocketBoxState> {
     client: MyClient,
   ) => {
     client.isSelected = e.target.checked;
+    const clients = this.state.clients;
+    const files = this.state.files;
+    for (const fkey in files) {
+      const file = files[fkey];
+      file.existSelectedClients = [];
+      file.nonExistSelectdClients = [];
+      for (const ckey in clients) {
+        const client = clients[ckey];
+        const cfiles = client.files || [];
+        if (client.isSelected) {
+          let isExist = false;
+          for (const cfkey in cfiles) {
+            const cfile = cfiles[cfkey];
+            if (cfile.filename === file.filename) {
+              file.existSelectedClients.push(client);
+              isExist = true;
+              break;
+            }
+          }
+          if (!isExist) {
+            file.nonExistSelectdClients.push(client);
+          }
+        }
+      }
+    }
     this.setState({});
   };
 

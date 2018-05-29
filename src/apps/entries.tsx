@@ -14,18 +14,6 @@ export default [
     component: <DateTime />,
   },
   {
-    name: "online",
-    component: <div>online page</div>,
-  },
-  {
-    name: "offline",
-    component: <div>offline page</div>,
-  },
-  {
-    name: "bond",
-    component: <div>bond page</div>,
-  },
-  {
     name: "test",
     width: 600,
     component: <div>test page</div>,

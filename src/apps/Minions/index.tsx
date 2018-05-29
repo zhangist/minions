@@ -35,7 +35,7 @@ export default class Minions extends AppWindow<{}, MinionsState> {
         <Tabs
           value={tabIndex}
           onChange={this.handleTabChange}
-          style={{ flex: "none" }}
+          style={{ flex: "none", background: "#bdcede" }}
         >
           <Tab label="Clients" />
           <Tab label="Files" />
