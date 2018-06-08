@@ -7,17 +7,17 @@ enum UploadState {
   UploadFailed = "UploadFailed",
 }
 
-interface IUploadBoxState {
-  showUploadBox: boolean;
+interface State {
+  isShowUploadFileBox: boolean;
   uploadState?: UploadState;
   uploadUrl: string;
   uploadFile: any;
   windows: any[];
 }
 
-export default class UploadBox extends AppWindow<{}, IUploadBoxState> {
-  public state: IUploadBoxState = {
-    showUploadBox: false,
+export default class UploadFileBox extends AppWindow<{}, State> {
+  public state: State = {
+    isShowUploadFileBox: false,
     uploadState: undefined,
     uploadUrl: "http://localhost:1992/upload",
     uploadFile: null,
@@ -25,24 +25,23 @@ export default class UploadBox extends AppWindow<{}, IUploadBoxState> {
   };
 
   public render() {
+    const { isShowUploadFileBox, uploadUrl, uploadState } = this.state;
+
     return (
       <div>
         <button
           onClick={() =>
-            this.setState({ showUploadBox: !this.state.showUploadBox })
+            this.setState({ isShowUploadFileBox: !isShowUploadFileBox })
           }
         >
           Open Upload Box
         </button>
-        {this.state.showUploadBox ? (
+        {isShowUploadFileBox && (
           <div>
-            <input
-              value={this.state.uploadUrl}
-              onChange={this.handleUploadUrlChange}
-            />
+            <input value={uploadUrl} onChange={this.handleUploadUrlChange} />
             <form
               method="post"
-              action={this.state.uploadUrl}
+              action={uploadUrl}
               encType="multipart/form-data"
             >
               <input
@@ -52,9 +51,9 @@ export default class UploadBox extends AppWindow<{}, IUploadBoxState> {
               />
               <input type="button" value="Submit" onClick={this.uploadSubmit} />
             </form>
-            <span>{this.state.uploadState}</span>
+            <span>{uploadState}</span>
           </div>
-        ) : null}
+        )}
       </div>
     );
   }
@@ -73,7 +72,6 @@ export default class UploadBox extends AppWindow<{}, IUploadBoxState> {
             body: data,
           };
           fetch(this.state.uploadUrl, options).then(response => {
-            console.log(response);
             let uploadState: UploadState;
             if (response.ok) {
               uploadState = UploadState.UploadSuccess;
