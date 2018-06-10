@@ -15,7 +15,6 @@ import FileList from "./components/FileList";
 import SocketConnectionBox from "./components/SocketConnectionBox";
 import UploadFileBox from "./components/UploadFileBox";
 import { SocketHandler, Client, File, PostClientData } from "./SocketRouter";
-import "./style.less";
 
 interface MyClient extends Client {
   isOpenDetail?: boolean;
